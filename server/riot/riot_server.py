@@ -1,10 +1,10 @@
 import requests
-
-from constants import RIOT_BASE_URL, RIOT_API_TOKEN
+from urllib.parse import quote
+from constants import RIOT_API_TOKEN
 
 
 def return_account_information(name, tag):
-    url = f"{RIOT_BASE_URL}/riot/account/v1/accounts/by-riot-id/{name}/{tag}?api_key={RIOT_API_TOKEN}"
+    url = f"https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{quote(name)}/{quote(tag)}?api_key={RIOT_API_TOKEN}"
 
     response = requests.get(url)
 
@@ -14,5 +14,24 @@ def return_account_information(name, tag):
         print(f"Error: {response.status_code} - {response.text}")
         return None
 
-def calculate_win_rate(name):
-    url = f'https://na1.api.riotgames.com/lol/league/v4/entries/by-summoner/{summonerId}?api_key={RIOT_API_TOKEN}'
+def spectate_live_game(puuid):
+    url = f'https://br1.api.riotgames.com/lol/spectator/v5/active-games/by-summoner/{puuid}?api_key={RIOT_API_TOKEN}'
+
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Error: {response.status_code} - {response.text}")
+        return None
+
+def check_match_result(game_id):
+    url = f'https://americas.api.riotgames.com/lol/match/v5/matches/BR1_{game_id}?api_key={RIOT_API_TOKEN}'
+
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Error: {response.status_code} - {response.text}")
+        return None

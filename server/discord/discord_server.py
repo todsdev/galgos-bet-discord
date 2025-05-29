@@ -6,8 +6,8 @@ from constants import DISCORD_TOKEN, COMMAND_REGISTER_PLAYER, TIMEOUT_MESSAGE, \
 from modal.account_modal import AccountModal
 from modal.user_modal import UserModal
 from server.firebase.firebase_server import init_firebase, save_user_firebase, get_user_points_firebase, \
-    check_user_registered_firebase, get_account_by_name
-from server.riot.riot_server import return_account_information
+    check_user_registered_firebase, get_account_by_name, add_points_to_user
+from server.riot.riot_server import return_account_information, spectate_live_game, check_match_result
 
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
@@ -17,6 +17,7 @@ client = discord.Client(intents=intents)
 async def on_ready():
     init_firebase()
     print('Application started')
+
 
 @client.event
 async def on_message(message: discord.Message):
@@ -32,42 +33,78 @@ async def on_message(message: discord.Message):
     elif message.content.startswith(COMMAND_START_BET):
         await start_bet(message)
 
+
 async def start_bet(message: discord.Message):
     def check_message(received_message):
         return received_message.author == message.author and received_message.channel == message.channel
 
     if not check_user_registered_firebase(message.author.id):
-        await message.channel.send(f"{message.author.nick}, você ainda não possui registro, digite !register primeiro!.")
+        await message.channel.send(
+            f"{message.author.display_name}, você ainda não possui registro, digite !register primeiro.")
         return
-
     else:
-        try:
-            await message.channel.send(f"{message.author.nick}, para quem deseja startar bet (nome da conta)?")
-
-            player_response = await client.wait_for(EVENT_MESSAGE, timeout=60, check=check_message)
-
-            search_response = get_account_by_name(player_response.content)
-            search_response_length = len(search_response)
-            if search_response_length == 0:
-                await message.channel.send(f"Não foi encontrado ninguém com esse nick no banco de dados")
-            elif search_response_length <= 2:
-                await message.channel.send("Usuário duplicado no banco de dados, por enquanto não suportamos essa função")
-            elif search_response_length == 1:
-                await message.channel.send(
-                    f"{message.author.nick}, seria para {search_response[0]["account"]["player_name"]}#{search_response[0]["account"]["player_tag"]}?")
-
-                # START BET HERE
+        await try_bet_logic(check_message, message)
 
 
-        except asyncio.TimeoutError:
-            await message.channel.send(TIMEOUT_MESSAGE)
+async def try_bet_logic(check_message, message):
+    try:
+        await message.channel.send(f"{message.author.display_name}, para quem deseja startar bet (nick da conta)?")
+
+        player_response = await client.wait_for(EVENT_MESSAGE, timeout=60, check=check_message)
+        search_response = get_account_by_name(player_response.content)
+        search_response_length = len(search_response)
+        player_account = search_response[0]["account"]["player_name"]
+        player_tag = search_response[0]["account"]["player_tag"]
+        player_puuid = search_response[0]["account"]["puuid"]
+        spectate_result = None
+
+        if search_response_length == 0:
+            await message.channel.send(f"Não foi encontrado ninguém com esse nick no banco de dados")
+        elif search_response_length >= 2:
+            await message.channel.send(
+                "Usuário duplicado no banco de dados, por enquanto não suportamos essa função")
+        elif search_response_length == 1:
+            await message.channel.send(
+                f"Começando bet para {player_account}#{player_tag}")
+
+            spectate_result = spectate_live_game(player_puuid)
+            game_id = 0
+            is_match_found = False
+            if spectate_result is not None:
+                is_match_found = True
+                game_id = spectate_result["gameId"]
+                await message.channel.send("Partida encontrada!")
+                await asyncio.sleep(300)
+                while is_match_found:
+                    spectate_result = spectate_live_game(player_puuid)
+                    if spectate_result is None:
+                        is_match_found = False
+                    else:
+                        await asyncio.sleep(300)
+            else:
+                await message.channel.send("Partida não encontrada ou finalizada!")
+
+            if is_match_found and game_id != 0:
+                match_result = check_match_result(game_id)
+                for participant in match_result["info"]["participants"]:
+                    if participant["puuid"] == player_puuid:
+                        result = participant["win"]
+
+        await message.channel.send(
+            f"{message.author.display_name}, adicionamos 100 pontos para você e para o jogador {spectate_result[0]["account"]["player_name"]}#{search_response[0]["account"]["player_tag"]}")
+        add_points_to_user(search_response[0]["user_id"], 100)
+        add_points_to_user(message.author.id, 100)
+
+    except asyncio.TimeoutError:
+        await message.channel.send(TIMEOUT_MESSAGE)
+
 
 async def register_player(message: discord.Message):
     def check_message(received_message):
         return received_message.author == message.author and received_message.channel == message.channel
 
     if check_user_registered_firebase(message.author.id):
-        await message.channel.send(f"{message.author.nick}, já possui registro.")
+        await message.channel.send(f"{message.author.display_name}, já possui registro.")
         return
     else:
         response_name = None
@@ -77,7 +114,7 @@ async def register_player(message: discord.Message):
         try:
             account_verified = False
             while not account_verified:
-                await message.channel.send(f"{message.author.nick}, digite seu nick da main no lol (sem a tag)")
+                await message.channel.send(f"{message.author.display_name}, digite seu nick da main no lol (sem a tag)")
                 response_name = await client.wait_for(EVENT_MESSAGE, timeout=60, check=check_message)
 
                 await message.channel.send("Agora somente a tag (sem o #)")
@@ -110,9 +147,11 @@ async def register_player(message: discord.Message):
         except asyncio.TimeoutError:
             await message.channel.send(TIMEOUT_MESSAGE)
 
+
 async def get_points_balance(message: discord.Message):
     if not check_user_registered_firebase(message.author.id):
-        await message.channel.send(f"{message.author.nick}, você ainda não possui registro, digite !register primeiro!.")
+        await message.channel.send(
+            f"{message.author.display_name}, você ainda não possui registro, digite !register primeiro!.")
         return
 
     user_points = get_user_points_firebase(message.author.id)
@@ -121,7 +160,6 @@ async def get_points_balance(message: discord.Message):
 
     elif user_points != 0:
         await message.channel.send(f"{user_points} pontos.")
-
 
 
 client.run(DISCORD_TOKEN)

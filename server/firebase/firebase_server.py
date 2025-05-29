@@ -60,3 +60,16 @@ def get_account_by_name(name):
                     })
 
     return matching_users
+
+def add_points_to_user(user_id, points):
+    database_ref = get_firebase_database()
+    user_ref = database_ref.child(USER_REF_FIREBASE_DATABASE).child(str(user_id))
+    user_data = user_ref.get()
+
+    if not user_data and not isinstance(user_data, dict):
+        raise ValueError("User not found")
+
+    current_points = float(user_data.get(USER_REF_POINTS_FIREBASE_DATABASE, 0.0))
+    new_points = current_points + points
+
+    user_ref.update({USER_REF_POINTS_FIREBASE_DATABASE: new_points})
