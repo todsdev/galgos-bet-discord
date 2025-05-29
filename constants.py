@@ -1,8 +1,9 @@
-RIOT_API_TOKEN = 'RGAPI-671cae5e-d298-410f-8d85-2e2ffce97904'
+RIOT_API_TOKEN = 'RGAPI-aa43d186-1cf5-49c5-ba20-61ba2134819f'
 RIOT_BASE_URL = 'https://americas.api.riotgames.com'
 RIOT_PLATFORM = 'br1'
 RIOT_REGION = 'americas'
 DISCORD_TOKEN = 'MTM3MDM3OTg3NTE4NTA2NjAwNA.G4aApZ.Hhv9M5_1kR-mKf6JAFX7eSPIlMfgtmhkV6MDdM'
+FIREBASE_DATABASE_URL = "https://galgos-bet-discord-default-rtdb.firebaseio.com/"
 COMMAND_REGISTER_PLAYER = '!register'
 COMMAND_BALANCE = "!balance"
 COMMAND_START_BET = 'start'
