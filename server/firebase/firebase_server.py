@@ -2,7 +2,7 @@ from dataclasses import asdict
 from typing import Optional, Any
 import firebase_admin
 from firebase_admin import credentials, firestore
-from constants import USER_REF_FIREBASE_DATABASE
+from constants import USER_REF_FIREBASE_DATABASE, USER_REF_POINTS_FIREBASE_DATABASE
 from modal.user_modal import UserModal
 
 database: Optional[Any] = None
@@ -24,3 +24,20 @@ def save_user_firebase(user: UserModal):
     user_dict = asdict(user)
     user_ref = db.collection(USER_REF_FIREBASE_DATABASE).document(str(user.user_id))
     user_ref.set(user_dict)
+
+def get_user_points_firebase(user_id: int):
+    db = get_firebase_database()
+    user_ref = db.collection(USER_REF_FIREBASE_DATABASE).document(str(user_id))
+    doc = user_ref.get()
+
+    if doc.exists:
+        data = doc.to_dict()
+        return data.get(USER_REF_POINTS_FIREBASE_DATABASE)
+    else:
+        raise ValueError("Pontos não encontrados")
+
+def check_user_registered_firebase(user_id: int):
+    db = get_firebase_database()
+    user_ref = db.collection(USER_REF_FIREBASE_DATABASE).document(str(user_id))
+    doc = user_ref.get()
+    return doc.exists

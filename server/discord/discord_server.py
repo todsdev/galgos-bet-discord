@@ -3,10 +3,10 @@ import asyncio
 import discord
 from constants import DISCORD_TOKEN, COMMAND_REGISTER_PLAYER, TIMEOUT_MESSAGE, \
     EVENT_MESSAGE, COMMAND_BALANCE
-from data.json_management import save_user, check_user_registered, get_user_points, start_bet_by_nick
 from modal.account_model import AccountModal
 from modal.user_modal import UserModal
-from server.firebase.firebase_server import init_firebase
+from server.firebase.firebase_server import init_firebase, save_user_firebase, get_user_points_firebase, \
+    check_user_registered_firebase
 from server.riot.riot_server import return_account_information
 
 intents = discord.Intents.all()
@@ -36,7 +36,7 @@ async def start_bet(message: discord.Message):
     def check_message(received_message):
         return received_message.author == message.author and received_message.channel == message.channel
 
-    if check_user_registered(message.author.id):
+    if check_user_registered_firebase(message.author.id):
         await message.channel.send(f"{message.author.nick}, tem que registrar primeiro nóia")
         return
 
@@ -56,7 +56,7 @@ async def register_player(message: discord.Message):
     def check_message(received_message):
         return received_message.author == message.author and received_message.channel == message.channel
 
-    if check_user_registered(message.author.id):
+    if check_user_registered_firebase(message.author.id):
         await message.channel.send(f"{message.author.nick}, você já tem registro seu chapadinho fedorento")
         return
 
@@ -88,18 +88,18 @@ async def register_player(message: discord.Message):
                 registered=True,
                 points=1000.0
             )
-            save_user(user)
+            save_user_firebase(user)
             await message.channel.send("Registrado, fellinha")
 
         except asyncio.TimeoutError:
             await message.channel.send(TIMEOUT_MESSAGE)
 
 async def get_points_balance(message: discord.Message):
-    if check_user_registered(message.author.id):
+    if check_user_registered_firebase(message.author.id):
         await message.channel.send(f"{message.author.nick}, tem que registrar primeiro menzinho")
         return
 
-    user_points = get_user_points(message.author.id)
+    user_points = get_user_points_firebase(message.author.id)
     if user_points == 0:
         await message.channel.send("Zerou menzinho??")
 

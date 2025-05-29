@@ -8,5 +8,5 @@ COMMAND_BALANCE = "!balance"
 COMMAND_START_BET = 'start'
 TIMEOUT_MESSAGE = "Demorou demais!"
 EVENT_MESSAGE = 'message'
-DATA_USER_PATH = 'data.user.json'
 USER_REF_FIREBASE_DATABASE = 'users'
+USER_REF_POINTS_FIREBASE_DATABASE = 'points'
