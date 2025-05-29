@@ -3,7 +3,8 @@ from typing import Optional
 
 import firebase_admin
 from firebase_admin import credentials, db
-from constants import USER_REF_FIREBASE_DATABASE, USER_REF_POINTS_FIREBASE_DATABASE, FIREBASE_DATABASE_URL
+from constants import USER_REF_FIREBASE_DATABASE, USER_REF_POINTS_FIREBASE_DATABASE, FIREBASE_DATABASE_URL, \
+    USER_REF_ACCOUNTS_FIREBASE_DATABASE
 from modal.user_modal import UserModal
 
 def init_firebase():
@@ -19,7 +20,9 @@ def get_firebase_database():
 
 def save_user_firebase(user: UserModal):
     database = get_firebase_database()
+    accounts_dict = {account.puuid: asdict(account) for account in user.accounts}
     user_dict = asdict(user)
+    user_dict[USER_REF_ACCOUNTS_FIREBASE_DATABASE] = accounts_dict
     user_ref = database.child(USER_REF_FIREBASE_DATABASE).child(str(user.user_id))
     user_ref.set(user_dict)
 
@@ -31,7 +34,6 @@ def get_user_points_firebase(user_id: int) -> Optional[float]:
         return user_data[USER_REF_POINTS_FIREBASE_DATABASE]
     else:
         raise ValueError("Pontos não encontrados ou formato inválido")
-
 
 def check_user_registered_firebase(user_id: int) -> bool:
     database_ref = get_firebase_database()

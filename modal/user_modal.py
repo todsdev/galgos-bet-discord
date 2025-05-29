@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
-from modal.account_model import AccountModal
-
+from modal.account_modal import AccountModal
 
 @dataclass()
 class UserModal:

@@ -15,4 +15,4 @@ def return_account_information(name, tag):
         return None
 
 def calculate_win_rate(name):
-    url = f'https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/{name}?api_key={RIOT_API_TOKEN}'
+    url = f'https://na1.api.riotgames.com/lol/league/v4/entries/by-summoner/{summonerId}?api_key={RIOT_API_TOKEN}'

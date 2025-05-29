@@ -3,7 +3,7 @@ import asyncio
 import discord
 from constants import DISCORD_TOKEN, COMMAND_REGISTER_PLAYER, TIMEOUT_MESSAGE, \
     EVENT_MESSAGE, COMMAND_BALANCE
-from modal.account_model import AccountModal
+from modal.account_modal import AccountModal
 from modal.user_modal import UserModal
 from server.firebase.firebase_server import init_firebase, save_user_firebase, get_user_points_firebase, \
     check_user_registered_firebase
@@ -18,7 +18,6 @@ async def on_ready():
     init_firebase()
     print('Application started')
 
-
 @client.event
 async def on_message(message: discord.Message):
     if message.author == client.user:
@@ -29,8 +28,6 @@ async def on_message(message: discord.Message):
 
     elif message.content.startswith(COMMAND_BALANCE):
         await get_points_balance(message)
-
-
 
 async def start_bet(message: discord.Message):
     def check_message(received_message):
@@ -50,28 +47,32 @@ async def start_bet(message: discord.Message):
         except asyncio.TimeoutError:
             await message.channel.send(TIMEOUT_MESSAGE)
 
-
-
 async def register_player(message: discord.Message):
     def check_message(received_message):
         return received_message.author == message.author and received_message.channel == message.channel
 
     if check_user_registered_firebase(message.author.id):
-        await message.channel.send(f"{message.author.nick}, você já tem registro seu chapadinho fedorento")
+        await message.channel.send(f"{message.author.nick}, já possui registro.")
         return
-
     else:
+        response_name = None
+        response_tag = None
+        riot_data = None
+
         try:
-            await message.channel.send(f"{message.author.nick}, digite seu nick da main no lol (sem a tag)")
-            response_name = await client.wait_for(EVENT_MESSAGE, timeout=60, check=check_message)
+            account_verified = False
+            while not account_verified:
+                await message.channel.send(f"{message.author.nick}, digite seu nick da main no lol (sem a tag)")
+                response_name = await client.wait_for(EVENT_MESSAGE, timeout=60, check=check_message)
 
-            await message.channel.send("Agora preciso da sua tag (sem o #)")
-            response_tag = await client.wait_for(EVENT_MESSAGE, timeout=60, check=check_message)
+                await message.channel.send("Agora somente a tag (sem o #)")
+                response_tag = await client.wait_for(EVENT_MESSAGE, timeout=60, check=check_message)
 
-            riot_data = return_account_information(response_name.content, response_tag.content)
-            if riot_data is None:
-                await message.channel.send("Conta não reconhecida na API Riot, tenta de novo newba")
-                return
+                riot_data = return_account_information(response_name.content, response_tag.content)
+                if riot_data is None:
+                    await message.channel.send("Conta não reconhecida na API Riot, tente novamente.")
+                else:
+                    account_verified = True
 
             main_account = AccountModal(
                 player_name=response_name.content,
@@ -89,7 +90,7 @@ async def register_player(message: discord.Message):
                 points=1000.0
             )
             save_user_firebase(user)
-            await message.channel.send("Registrado, fellinha")
+            await message.channel.send("Registrado!")
 
         except asyncio.TimeoutError:
             await message.channel.send(TIMEOUT_MESSAGE)
