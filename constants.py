@@ -1,0 +1,12 @@
+RIOT_API_TOKEN = 'RGAPI-671cae5e-d298-410f-8d85-2e2ffce97904'
+RIOT_BASE_URL = 'https://americas.api.riotgames.com'
+RIOT_PLATFORM = 'br1'
+RIOT_REGION = 'americas'
+DISCORD_TOKEN = 'MTM3MDM3OTg3NTE4NTA2NjAwNA.G4aApZ.Hhv9M5_1kR-mKf6JAFX7eSPIlMfgtmhkV6MDdM'
+COMMAND_REGISTER_PLAYER = '!register'
+COMMAND_BALANCE = "!balance"
+COMMAND_START_BET = 'start'
+TIMEOUT_MESSAGE = "Demorou demais!"
+EVENT_MESSAGE = 'message'
+DATA_USER_PATH = 'data.user.json'
+USER_REF_FIREBASE_DATABASE = 'users'
