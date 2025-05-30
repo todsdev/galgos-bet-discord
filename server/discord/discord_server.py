@@ -8,6 +8,7 @@ from modal.user_modal import UserModal
 from server.firebase.firebase_server import init_firebase, save_user_firebase, get_user_points_firebase, \
     check_user_registered_firebase, get_account_by_name, add_points_to_user
 from server.riot.riot_server import return_account_information, spectate_live_game, check_match_result
+from view.discord_view import DiscordBetView
 
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
@@ -43,20 +44,16 @@ async def start_bet(message: discord.Message):
             f"{message.author.display_name}, você ainda não possui registro, digite !register primeiro.")
         return
     else:
-        await try_bet_logic(check_message, message)
+        await bet_for_registered_user(check_message, message)
 
 
-async def try_bet_logic(check_message, message):
+async def bet_for_registered_user(check_message, message):
     try:
         await message.channel.send(f"{message.author.display_name}, para quem deseja startar bet (nick da conta)?")
 
         player_response = await client.wait_for(EVENT_MESSAGE, timeout=60, check=check_message)
         search_response = get_account_by_name(player_response.content)
         search_response_length = len(search_response)
-        player_account = search_response[0]["account"]["player_name"]
-        player_tag = search_response[0]["account"]["player_tag"]
-        player_puuid = search_response[0]["account"]["puuid"]
-        spectate_result = None
 
         if search_response_length == 0:
             await message.channel.send(f"Não foi encontrado ninguém com esse nick no banco de dados")
@@ -64,36 +61,49 @@ async def try_bet_logic(check_message, message):
             await message.channel.send(
                 "Usuário duplicado no banco de dados, por enquanto não suportamos essa função")
         elif search_response_length == 1:
+            player_name = search_response[0]["account"]["player_name"]
+            player_tag = search_response[0]["account"]["player_tag"]
+            player_puuid = search_response[0]["account"]["puuid"]
+
             await message.channel.send(
-                f"Começando bet para {player_account}#{player_tag}")
+                f"Começando bet para {player_name}#{player_tag}")
 
             spectate_result = spectate_live_game(player_puuid)
             game_id = 0
-            is_match_found = False
             if spectate_result is not None:
                 is_match_found = True
                 game_id = spectate_result["gameId"]
                 await message.channel.send("Partida encontrada!")
-                await asyncio.sleep(300)
+
+                view = DiscordBetView(message.author)
+                await message.channel.send("Quanto você quer apostar?", view=view)
+
+
+                await asyncio.sleep(180)
                 while is_match_found:
                     spectate_result = spectate_live_game(player_puuid)
                     if spectate_result is None:
                         is_match_found = False
                     else:
-                        await asyncio.sleep(300)
+                        print("Partida em andamento.")
+                        await asyncio.sleep(180)
             else:
                 await message.channel.send("Partida não encontrada ou finalizada!")
 
-            if is_match_found and game_id != 0:
+            if game_id != 0:
                 match_result = check_match_result(game_id)
                 for participant in match_result["info"]["participants"]:
                     if participant["puuid"] == player_puuid:
                         result = participant["win"]
+                        if result:
+                            await message.channel.send(f"Jogador {player_name}#{player_tag} venceu a partida!")
+                        else:
+                            await message.channel.send(f"Jogador {player_name}#{player_tag} perdeu a partida.")
 
-        await message.channel.send(
-            f"{message.author.display_name}, adicionamos 100 pontos para você e para o jogador {spectate_result[0]["account"]["player_name"]}#{search_response[0]["account"]["player_tag"]}")
-        add_points_to_user(search_response[0]["user_id"], 100)
-        add_points_to_user(message.author.id, 100)
+                        await message.channel.send(
+                            f"{message.author.display_name}, adicionamos 100 pontos para você e para o jogador {player_name}#{player_tag}.")
+                        add_points_to_user(search_response[0]["user_id"], 100)
+                        add_points_to_user(message.author.id, 100)
 
     except asyncio.TimeoutError:
         await message.channel.send(TIMEOUT_MESSAGE)

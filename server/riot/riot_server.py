@@ -11,7 +11,7 @@ def return_account_information(name, tag):
     if response.status_code == 200:
         return response.json()
     else:
-        print(f"Error: {response.status_code} - {response.text}")
+        print(f"Error(return_account_information): {response.status_code} - {response.text}")
         return None
 
 def spectate_live_game(puuid):
@@ -22,7 +22,7 @@ def spectate_live_game(puuid):
     if response.status_code == 200:
         return response.json()
     else:
-        print(f"Error: {response.status_code} - {response.text}")
+        print(f"Error(spectate_live_game): {response.status_code} - {response.text}")
         return None
 
 def check_match_result(game_id):
@@ -33,5 +33,5 @@ def check_match_result(game_id):
     if response.status_code == 200:
         return response.json()
     else:
-        print(f"Error: {response.status_code} - {response.text}")
+        print(f"Error(check_match_result): {response.status_code} - {response.text}")
         return None
