@@ -2,14 +2,14 @@ import asyncio
 
 import discord
 from constants import DISCORD_TOKEN, COMMAND_REGISTER_PLAYER, TIMEOUT_MESSAGE, \
-    EVENT_MESSAGE, COMMAND_BALANCE, COMMAND_START_BET
+    EVENT_MESSAGE, COMMAND_BALANCE, COMMAND_START_BET, COMMAND_COMMANDS
 from modal.account_modal import AccountModal
 from modal.user_modal import UserModal
 from server.firebase.firebase_server import init_firebase, save_user_firebase, get_user_points_firebase, \
     check_user_registered_firebase, get_account_by_name, add_points_to_user
 from server.riot.riot_server import return_account_information, spectate_live_game, check_match_result, \
     retrieve_win_rate
-from view.discord_view import DiscordBetView
+from view.discord_bet_view import DiscordBetView
 
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
@@ -34,6 +34,9 @@ async def on_message(message: discord.Message):
 
     elif message.content.startswith(COMMAND_START_BET):
         await start_bet(message)
+
+    elif message.content.startswith(COMMAND_COMMANDS):
+        await display_commands(message)
 
 
 async def start_bet(message: discord.Message):
@@ -204,6 +207,17 @@ async def get_points_balance(message: discord.Message):
 
     elif user_points != 0:
         await message.channel.send(f"{user_points} pontos.")
+
+async def display_commands(message: discord.Message):
+    embed = discord.Embed(
+        title="Commands",
+        description=f" **!gb_commands:** Comandos gerais do BOT\n"
+                    f" **!register:** Se registrar no sistema pela primeira vez\n"
+                    f" **!balance:** Saber quantos pontos você tem para apostar\n"
+                    f" **!start:** Começar o sistema de bet para algum player registrado\n",
+        color=discord.Color.blue()
+    )
+    await message.channel.send(embed=embed)
 
 
 client.run(DISCORD_TOKEN)

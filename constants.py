@@ -6,6 +6,7 @@ FIREBASE_DATABASE_URL = "https://galgos-bet-discord-default-rtdb.firebaseio.com/
 COMMAND_REGISTER_PLAYER = '!register'
 COMMAND_BALANCE = "!balance"
 COMMAND_START_BET = '!start'
+COMMAND_COMMANDS = '!gb_commands'
 TIMEOUT_MESSAGE = "Demorou demais!"
 EVENT_MESSAGE = 'message'
 USER_REF_FIREBASE_DATABASE = 'users'

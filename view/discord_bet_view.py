@@ -16,4 +16,3 @@ class DiscordBetView(ui.View):
 
         modal = BetModal(self.user)
         await interaction.response.send_modal(modal)
-
