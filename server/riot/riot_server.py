@@ -35,3 +35,14 @@ def check_match_result(game_id):
     else:
         print(f"Error(check_match_result): {response.status_code} - {response.text}")
         return None
+
+def retrieve_win_rate(puuid):
+    url = f'https://br1.api.riotgames.com/lol/league/v4/entries/by-puuid/{puuid}?api_key={RIOT_API_TOKEN}'
+
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Error(retrieve_win_rate): {response.status_code} - {response.text}")
+        return None

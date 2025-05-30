@@ -10,7 +10,7 @@ class DiscordBetView(ui.View):
         self.user = user
 
     @ui.button(label="Place bet")
-    async def confirm(self, interaction: discord.Interaction, button: ui.Button):
+    async def confirm(self, interaction: discord.Interaction):
         if interaction.user.id != self.user.id:
             return
 

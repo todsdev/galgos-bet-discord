@@ -7,7 +7,8 @@ from modal.account_modal import AccountModal
 from modal.user_modal import UserModal
 from server.firebase.firebase_server import init_firebase, save_user_firebase, get_user_points_firebase, \
     check_user_registered_firebase, get_account_by_name, add_points_to_user
-from server.riot.riot_server import return_account_information, spectate_live_game, check_match_result
+from server.riot.riot_server import return_account_information, spectate_live_game, check_match_result, \
+    retrieve_win_rate
 from view.discord_view import DiscordBetView
 
 intents = discord.Intents.all()
@@ -75,9 +76,7 @@ async def bet_for_registered_user(check_message, message):
                 game_id = spectate_result["gameId"]
                 await message.channel.send("Partida encontrada!")
 
-                view = DiscordBetView(message.author)
-                await message.channel.send("Quanto você quer apostar?", view=view)
-
+                await handle_bet_view(message=message, player_name=player_name, puuid=player_puuid, points=get_user_points_firebase(message.author.id))
 
                 await asyncio.sleep(180)
                 while is_match_found:
@@ -107,6 +106,41 @@ async def bet_for_registered_user(check_message, message):
 
     except asyncio.TimeoutError:
         await message.channel.send(TIMEOUT_MESSAGE)
+
+
+async def handle_bet_view(message, player_name, puuid, points):
+    match_results = retrieve_win_rate(puuid=puuid)
+    flex_rate = 0
+    solo_rate = 0
+    for entry in match_results:
+        if entry["queueType"] == "RANKED_FLEX_SR":
+            flex_wins = entry["wins"]
+            flex_losses = entry["losses"]
+            flex_rate = flex_wins / (flex_wins + flex_losses) * 100
+        if entry["queueType"] == "RANKED_SOLO_5x5":
+            solo_wins = entry["wins"]
+            solo_losses = entry["losses"]
+            solo_rate = solo_wins / (solo_wins + solo_losses) * 100
+
+    house_edge = 0.95
+    prob_win = solo_rate / 100
+    prob_lose = 1 - prob_win
+
+    odd_win = round((1 / prob_win) * house_edge, 2)
+    odd_lose = round((1 / prob_lose) * house_edge, 2)
+
+    embed = discord.Embed(
+        title="Placing bet",
+        description=f" **Player:** {player_name}\n"
+                    f" **Flex Win Rate:** {round(flex_rate, 2)}%\n"
+                    f" **Solo Win Rate:** {round(solo_rate, 2)}%\n"
+                    f" **Odds Win:** {round(odd_win, 2)}\n"
+                    f" **Odds Lose:** {round(odd_lose, 2)}\n"
+                    f" **Seus Pontos:** {points}",
+        color=discord.Color.blue()
+    )
+    view = DiscordBetView(message.author)
+    await message.channel.send(content="Quanto você quer apostar?", embed=embed, view=view)
 
 
 async def register_player(message: discord.Message):
