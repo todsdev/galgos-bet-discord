@@ -7,7 +7,8 @@ from modal.account_modal import AccountModal
 from modal.bet_modal import BetModal
 from modal.user_modal import UserModal
 from server.firebase.firebase_server import init_firebase, save_user_firebase, get_user_points_firebase, \
-    check_user_registered_firebase, get_account_by_name, get_account_by_id, get_points_ranking, get_user_by_id
+    check_user_registered_firebase, get_account_by_name, get_account_by_id, get_points_ranking, get_user_by_id, \
+    add_user_account
 from server.riot.riot_server import return_account_information, spectate_live_game, check_match_result, \
     retrieve_win_rate
 
@@ -55,6 +56,50 @@ async def on_message(message: discord.Message):
     elif message.content.startswith(Constants.Commands.COMMAND_JOIN):
         print(Constants.Prints.PRINT_TRYING_JOIN)
         await try_joining(message)
+
+    elif message.content.startswith(Constants.Commands.COMMAND_ADD):
+        print(Constants.Prints.PRINT_ADD_ACCOUNT)
+        await add_account(message)
+
+async def add_account(message: discord.Message):
+    if not await is_user_registered(message):
+        await message.channel.send(f"{message.author.display_name}{Constants.Functions.NOT_REGISTERED}")
+        return
+
+    def check_message(received_message):
+        return received_message.author == message.author and received_message.channel == message.channel
+
+    try:
+        response_name = None
+        response_tag = None
+        riot_data = None
+        account_verified = False
+
+        while not account_verified:
+            await message.channel.send(f"{message.author.display_name}{Constants.AddAccount.REGISTER_NICK}")
+            response_name = await client.wait_for(Constants.Generic.EVENT_MESSAGE, timeout=60, check=check_message)
+
+            await message.channel.send(Constants.AddAccount.REGISTER_TAG)
+            response_tag = await client.wait_for(Constants.Generic.EVENT_MESSAGE, timeout=60, check=check_message)
+
+            riot_data = return_account_information(response_name.content, response_tag.content)
+
+            if riot_data is None:
+                await message.channel.send(Constants.Register.RIOT_ACCOUNT_NOT_FOUND)
+            else:
+                account_verified = True
+
+        secondary_account = AccountModal(
+            player_name=response_name.content,
+            player_tag=response_tag.content,
+            main=False,
+            puuid=riot_data[Constants.Generic.PUUID]
+        )
+
+        add_user_account(message.author.id, secondary_account)
+
+    except GalgosBetException:
+        raise GalgosBetException(Constants.Errors.ADD_ACCOUNT_ERROR)
 
 async def try_joining(message: discord.Message):
     global is_bet_period_available, bettors_list
@@ -326,6 +371,7 @@ async def display_commands(message: discord.Message):
     {Constants.CommandsView.SELF}
     {Constants.CommandsView.RANKING}
     {Constants.CommandsView.JOIN}
+    {Constants.CommandsView.ADD}
     """
     await send_embed_message(message, Constants.CommandsView.TITLE, description, Constants.Colors.BLUE)
 

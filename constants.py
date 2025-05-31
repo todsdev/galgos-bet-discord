@@ -59,6 +59,7 @@ class Constants:
         COMMAND_SELF_BET = "!self"
         COMMAND_COMMANDS = "!commands"
         COMMAND_JOIN = "!join"
+        COMMAND_ADD = "!add"
 
     class CommandsView:
         GB_COMMANDS = "**!commands:** Comandos gerais do BOT"
@@ -68,6 +69,7 @@ class Constants:
         SELF = "**!self:** Começar o sistema de bet para sua conta"
         RANKING = "**!ranking:** Exibe o ranking de pontuação dos membros da season"
         JOIN = "**!join:** Permite entrar na instância de bet aberta"
+        ADD = "**!add:** Permite adicionar outra conta ao seu pefil"
         TITLE = "Comandos"
 
     class Errors:
@@ -76,6 +78,7 @@ class Constants:
         RANKING_EXCEPTION = "Ocorreu um erro ao recuperar ranking de pontos: "
         BALANCE_EXCEPTION = "Ocorreu um erro ao recuperar balance de pontos: "
         RANKING_EXCEPTION_FIREBASE = "Ocorreu um erro ao recuperar pontos do Firebase"
+        ADD_ACCOUNT_ERROR = "Ocorreu um erro ao adicionar nova conta"
         JOIN_EXCEPTION = "Ocorreu um erro ao tentar entrar no sistema de bet: "
         UNKNOWN_SEARCH_RESPONSE = "Search response não foi recuperado no formato ideal"
         FIREBASE_EXCEPTION = "Erro ao recuperar dados do Firebase: "
@@ -96,6 +99,7 @@ class Constants:
         PRINT_SELF_START = "Start self player bet"
         PRINT_MATCH_LIVE = "Partida em andamento"
         PRINT_TRYING_JOIN = "Jogador tentando entrar no sistema de bet"
+        PRINT_ADD_ACCOUNT = "Jogador tentando adicionar conta nova"
         APPLICATION_ALIVE = "Application started"
 
     class Ranking:
@@ -145,6 +149,10 @@ class Constants:
     class Balance:
         VIEW_TITLE = "Seus pontos"
         VIEW_TOTAL_POINTS = "Seu total de pontos é: "
+
+    class AddAccount:
+        REGISTER_NICK = ", digite seu nick da sua conta secundária no lol (sem a tag)"
+        REGISTER_TAG = "Agora somente a tag (sem o #)"
 
     class Functions:
         LAZY_DEV = "Já existe uma bet ativa no momento, espere o final ou reclame com o dev que não escalou a aplicação direito por preguiça."

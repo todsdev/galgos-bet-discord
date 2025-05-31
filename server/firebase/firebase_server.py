@@ -184,3 +184,14 @@ def get_points_ranking():
 
     except Exception as exception:
         raise GalgosBetException(f"{Constants.Errors.FIREBASE_EXCEPTION}{str(exception)}")
+
+def add_user_account(user_id: int, account: AccountModal):
+    try:
+        database_ref = get_firebase_database()
+        account_ref = database_ref.child(Constants.Firebase.USER_REF_FIREBASE_DATABASE).child(str(user_id)).child(
+            Constants.Firebase.USER_REF_ACCOUNTS_FIREBASE_DATABASE).child(account.puuid)
+
+        account_ref.set(asdict(account))
+
+    except Exception as exception:
+        raise GalgosBetException(f"{Constants.Errors.FIREBASE_EXCEPTION}{str(exception)}")
