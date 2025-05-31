@@ -1,10 +1,10 @@
 import requests
 from urllib.parse import quote
-from constants import RIOT_API_TOKEN
+from constants import Constants
 
 
 def return_account_information(name, tag):
-    url = f"https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{quote(name)}/{quote(tag)}?api_key={RIOT_API_TOKEN}"
+    url = f"https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{quote(name)}/{quote(tag)}?api_key={Constants.Riot.RIOT_API_TOKEN}"
 
     response = requests.get(url)
 
@@ -15,7 +15,7 @@ def return_account_information(name, tag):
         return None
 
 def spectate_live_game(puuid):
-    url = f'https://br1.api.riotgames.com/lol/spectator/v5/active-games/by-summoner/{puuid}?api_key={RIOT_API_TOKEN}'
+    url = f'https://br1.api.riotgames.com/lol/spectator/v5/active-games/by-summoner/{puuid}?api_key={Constants.Riot.RIOT_API_TOKEN}'
 
     response = requests.get(url)
 
@@ -26,7 +26,7 @@ def spectate_live_game(puuid):
         return None
 
 def check_match_result(game_id):
-    url = f'https://americas.api.riotgames.com/lol/match/v5/matches/BR1_{game_id}?api_key={RIOT_API_TOKEN}'
+    url = f'https://americas.api.riotgames.com/lol/match/v5/matches/BR1_{game_id}?api_key={Constants.Riot.RIOT_API_TOKEN}'
 
     response = requests.get(url)
 
@@ -37,7 +37,7 @@ def check_match_result(game_id):
         return None
 
 def retrieve_win_rate(puuid):
-    url = f'https://br1.api.riotgames.com/lol/league/v4/entries/by-puuid/{puuid}?api_key={RIOT_API_TOKEN}'
+    url = f'https://br1.api.riotgames.com/lol/league/v4/entries/by-puuid/{puuid}?api_key={Constants.Riot.RIOT_API_TOKEN}'
 
     response = requests.get(url)
 

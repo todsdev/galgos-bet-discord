@@ -10,8 +10,14 @@ class Constants:
         PUUID = "puuid"
         POINTS = "points"
         ACCOUNT = "account"
+        ACCOUNTS = "accounts"
         GAME_ID = "gameId"
         EVENT_MESSAGE = "message"
+        USER_ID = "user_id"
+        ACCOUNT_ID = "account_id"
+        USER_NAME = "user_name"
+        USER_NICK = "user_nick"
+        MAIN = "main"
         HASHTAG = "#"
         PERCENTAGE = "%"
         INFORMATION = "info"
@@ -33,10 +39,12 @@ class Constants:
 
     class Firebase:
         FIREBASE_DATABASE_URL = "https://galgos-bet-discord-default-rtdb.firebaseio.com/"
+        FIREBASE_DATABASE_URL_REQUEST = 'databaseURL'
         USER_REF_FIREBASE_DATABASE = "users"
         USER_REF_ACCOUNTS_FIREBASE_DATABASE = "accounts"
         USER_REF_POINTS_FIREBASE_DATABASE = "points"
         USER_REF_PLAYER_NAME_FIREBASE_DATABASE = "player_name"
+        CERTIFICATE_PATH = "C:\\Users\\Tods\\PycharmProjects\\PythonProject\\config\\galgos-bet-discord-firebase-adminsdk-fbsvc-30cb193ae2.json"
 
     class Commands:
         COMMAND_REGISTER_PLAYER = "!register"
@@ -45,6 +53,7 @@ class Constants:
         COMMAND_START_BET = "!start"
         COMMAND_SELF_BET = "!self"
         COMMAND_COMMANDS = "!gb_commands"
+        COMMAND_JOIN = "!join"
 
     class CommandsView:
         GB_COMMANDS = "**!gb_commands:** Comandos gerais do BOT"
@@ -56,12 +65,17 @@ class Constants:
         TITLE = "Comandos"
 
     class Errors:
-        TIMEOUT_MESSAGE = "Demorou demais!"
+        TIMEOUT_MESSAGE = "Demorou demais, tente novamente"
         GALGOS_EXCEPTION = "Ocorreu um erro no sistema de apostas dos Galgos"
-        RANKING_EXCEPTION = "Ocorreu um erro ao recuperar ranking de pontos :"
-        BALANCE_EXCEPTION = "Ocorreu um erro ao recuperar balance de pontos :"
+        RANKING_EXCEPTION = "Ocorreu um erro ao recuperar ranking de pontos: "
+        BALANCE_EXCEPTION = "Ocorreu um erro ao recuperar balance de pontos: "
         RANKING_EXCEPTION_FIREBASE = "Ocorreu um erro ao recuperar pontos do Firebase"
+        JOIN_EXCEPTION = "Ocorreu um erro ao tentar entrar no sistema de bet: "
         UNKNOWN_SEARCH_RESPONSE = "Search response não foi recuperado no formato ideal"
+        FIREBASE_EXCEPTION = "Erro ao recuperar dados do Firebase: "
+        RUNTIME_FIREBASE_EXCEPTION = "Firebase ainda não foi inicializado, chame init_firebase() primeiro"
+        VALUE_ERROR_POINTS = "Pontos não encontrados ou formato inválido"
+        VALUE_ERROR_USER = "Usuário não encontrado"
 
     class Prints:
         PRINT_REGISTER_PLAYER = "Start player registering for first time"
@@ -70,7 +84,9 @@ class Constants:
         PRINT_COMMANDS = "Displaying commands"
         PRINT_RANKING = "Displaying players points ranking"
         PRINT_SELF_START = "Start self player bet"
-        MATCH_LIVE = "Partida em andamento"
+        PRINT_MATCH_LIVE = "Partida em andamento"
+        PRINT_TRYING_JOIN = "Jogador tentando entrar no sistema de bet"
+        APPLICATION_ALIVE = "Application started"
 
     class Ranking:
         RANKING = "Ranking"
@@ -98,12 +114,21 @@ class Constants:
         BET_VIEW_DESCRIPTION_ODDS_WIN = "**Odds Win:** "
         BET_VIEW_DESCRIPTION_ODDS_LOSE = "**Odds Lose:** "
         BET_VIEW_TITLE = "Estatísticas de jogador"
+        BET_PERIOD_AVAILABLE = '''
+        Sistema de bet iniciado
+        Digite !join para participar da aposta
+        Você tem 2 minutos até o sistema fechar
+        '''
+        BET_PERIOD_ENDED = "Sistema de bet para essa partida está fechado"
 
     class Register:
         REGISTER_NICK = ", digite seu nick da main no lol (sem a tag)"
         REGISTER_TAG = "Agora somente a tag (sem o #)"
         RIOT_ACCOUNT_NOT_FOUND = "Conta não reconhecida na API Riot, tente novamente"
         REGISTERED = "Registrado com sucesso"
+
+    class Join:
+        BET_NOT_FOUND = "Não existe bet ativa no momento"
 
     class Balance:
         VIEW_TITLE = "Seus pontos"
@@ -112,6 +137,7 @@ class Constants:
     class Functions:
         LAZY_DEV = "Já existe uma bet ativa no momento, espere o final ou reclame com o dev que não escalou a aplicação direito por preguiça."
         NOT_REGISTERED = ", você ainda não possui registro, digite !register primeiro"
+        ALREADY_REGISTERED = ", você já possui registro"
 
     class Colors:
         BLUE = discord.Color.blue()

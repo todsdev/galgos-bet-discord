@@ -4,21 +4,24 @@ import discord
 from constants import Constants
 from exceptions import GalgosBetException
 from modal.account_modal import AccountModal
+from modal.bet_modal import BetModal
 from modal.user_modal import UserModal
 from server.firebase.firebase_server import init_firebase, save_user_firebase, get_user_points_firebase, \
-    check_user_registered_firebase, get_account_by_name, get_account_by_id, get_points_ranking
+    check_user_registered_firebase, get_account_by_name, get_account_by_id, get_points_ranking, get_user_by_id
 from server.riot.riot_server import return_account_information, spectate_live_game, check_match_result, \
     retrieve_win_rate
-from view.discord_bet_view import DiscordBetView
 
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
 is_bet_started = False
+is_bet_period_available = False
+bet_modal = BetModal
+bettors_list: list[UserModal] = []
 
 @client.event
 async def on_ready():
     init_firebase()
-    print('Application started')
+    print(Constants.Prints.APPLICATION_ALIVE)
 
 @client.event
 async def on_message(message: discord.Message):
@@ -48,6 +51,24 @@ async def on_message(message: discord.Message):
     elif message.content.startswith(Constants.Commands.COMMAND_SELF_BET):
         print(Constants.Prints.PRINT_SELF_START)
         await start_self_bet(message)
+
+    elif message.content.startswith(Constants.Commands.COMMAND_JOIN):
+        print(Constants.Prints.PRINT_TRYING_JOIN)
+        await try_joining(message)
+
+async def try_joining(message: discord.Message):
+    global is_bet_period_available, bettors_list
+
+    if await check_bet_started(message, False) and is_bet_period_available:
+        try:
+            user = get_user_by_id(message.author.id)
+            bettors_list.append(user)
+
+        except Exception as exception:
+            raise GalgosBetException(f"{Constants.Errors.JOIN_EXCEPTION}{str(exception)}")
+
+    else:
+        await message.channel.send(Constants.Join.BET_NOT_FOUND)
 
 async def get_ranking(message: discord.Message):
     try:
@@ -81,33 +102,35 @@ async def bet_for_myself(message):
         await message.channel.send(Constants.Errors.TIMEOUT_MESSAGE)
 
 async def start_self_bet(message: discord.Message):
-    if await block_unregistered_user(message):
+    if not await is_user_registered(message):
+        await message.channel.send(f"{message.author.display_name}{Constants.Functions.NOT_REGISTERED}")
         return
 
-    if await block_if_bet_started(message):
+    if await check_bet_started(message):
         return
 
     await bet_for_myself(message)
 
-async def block_unregistered_user(message: discord.Message):
-    if not check_user_registered_firebase(message.author.id):
-        await message.channel.send(f"{message.author.display_name}{Constants.Functions.NOT_REGISTERED}")
+async def is_user_registered(message: discord.Message) -> bool:
+    if check_user_registered_firebase(message.author.id):
         return True
+
     return False
 
-async def block_if_bet_started(message: discord.Message):
+async def check_bet_started(message: discord.Message, lazy_message = True):
     global is_bet_started
 
     if is_bet_started:
-        await message.channel.send(Constants.Functions.LAZY_DEV)
+        if lazy_message:
+            await message.channel.send(Constants.Functions.LAZY_DEV)
         return True
     return False
 
 async def start_bet(message: discord.Message):
-    if await block_unregistered_user(message):
+    if not await is_user_registered(message, f"{message.author.display_name}{Constants.Functions.NOT_REGISTERED}"):
         return
 
-    if await block_if_bet_started(message):
+    if await check_bet_started(message):
         return
 
     await bet_for_registered_user(message)
@@ -167,7 +190,7 @@ async def handle_bet_for_specific_player_found(message, search_response):
                 is_bet_started = False
                 await message.channel.send(Constants.BetSystem.MATCH_OVER)
             else:
-                print(Constants.Prints.MATCH_LIVE)
+                print(Constants.Prints.PRINT_MATCH_LIVE)
                 await asyncio.sleep(60)
 
     else:
@@ -221,7 +244,7 @@ async def register_player(message: discord.Message):
     def check_message(received_message):
         return received_message.author == message.author and received_message.channel == message.channel
 
-    if await block_unregistered_user(message):
+    if await is_user_registered(message, f"{message.author.display_name}{Constants.Functions.ALREADY_REGISTERED}"):
         return
 
     response_name = None
@@ -269,7 +292,7 @@ async def register_player(message: discord.Message):
         await message.channel.send(Constants.Errors.TIMEOUT_MESSAGE)
 
 async def get_points_balance(message: discord.Message):
-    if await block_unregistered_user(message):
+    if not await is_user_registered(message, f"{message.author.display_name}{Constants.Functions.NOT_REGISTERED}"):
         return
 
     try:
@@ -301,5 +324,22 @@ async def send_embed_message(message, title, description, color, content=None, v
         color=color
     )
     await message.channel.send(embed=embed, content=content, view=view)
+
+async def initiate_bet(message: discord.Message):
+    if not await check_bet_started(message, False):
+        return
+
+    global is_bet_period_available
+    is_bet_period_available = True
+
+    await message.channel.send(Constants.BetSystem.BET_PERIOD_AVAILABLE)
+
+    try:
+        await asyncio.sleep(120)
+
+    finally:
+        is_bet_period_available = False
+        await message.channel.send(Constants.BetSystem.BET_PERIOD_AVAILABLE)
+
 
 client.run(Constants.Discord.DISCORD_TOKEN)
