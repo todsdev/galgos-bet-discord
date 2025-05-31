@@ -13,10 +13,12 @@ def init_firebase():
         'databaseURL': FIREBASE_DATABASE_URL,
     })
 
+
 def get_firebase_database():
     if db is None:
         raise RuntimeError("Firebase ainda não foi inicializado. Chame init_firebase() primeiro.")
     return db.reference()
+
 
 def save_user_firebase(user: UserModal):
     database_ref = get_firebase_database()
@@ -25,6 +27,7 @@ def save_user_firebase(user: UserModal):
     user_dict[USER_REF_ACCOUNTS_FIREBASE_DATABASE] = accounts_dict
     user_ref = database_ref.child(USER_REF_FIREBASE_DATABASE).child(str(user.user_id))
     user_ref.set(user_dict)
+
 
 def get_user_points_firebase(user_id: int) -> Optional[float]:
     database_ref = get_firebase_database()
@@ -35,11 +38,31 @@ def get_user_points_firebase(user_id: int) -> Optional[float]:
     else:
         raise ValueError("Pontos não encontrados ou formato inválido")
 
+
 def check_user_registered_firebase(user_id: int) -> bool:
     database_ref = get_firebase_database()
     user_ref = database_ref.child(USER_REF_FIREBASE_DATABASE).child(str(user_id))
     user_data = user_ref.get()
     return user_data is not None
+
+
+def get_account_by_id(user_id):
+    database_ref = get_firebase_database()
+    accounts_ref = database_ref.child(USER_REF_FIREBASE_DATABASE).child(str(user_id)).child(USER_REF_ACCOUNTS_FIREBASE_DATABASE)
+    accounts = accounts_ref.get()
+
+    matching_accounts = []
+
+    if accounts and isinstance(accounts, dict):
+        for account_id, account_data in accounts.items():
+            matching_accounts.append({
+                "user_id": str(user_id),
+                "account_id": account_id,
+                "account": account_data
+            })
+
+    return matching_accounts
+
 
 def get_account_by_name(name):
     database_ref = get_firebase_database()
@@ -61,6 +84,7 @@ def get_account_by_name(name):
 
     return matching_users
 
+
 def add_points_to_user(user_id, points):
     database_ref = get_firebase_database()
     user_ref = database_ref.child(USER_REF_FIREBASE_DATABASE).child(str(user_id))
@@ -73,3 +97,30 @@ def add_points_to_user(user_id, points):
     new_points = current_points + points
 
     user_ref.update({USER_REF_POINTS_FIREBASE_DATABASE: new_points})
+
+
+def get_points_ranking():
+    database_ref = get_firebase_database()
+    user_ref = database_ref.child(USER_REF_FIREBASE_DATABASE)
+    all_users = user_ref.get()
+
+    ranked_users = []
+
+    if all_users and isinstance(all_users, dict):
+        for user_id, user_data in all_users.items():
+            points = user_data.get("points")
+            accounts = user_data.get("accounts", {})
+
+            player_name = None
+            if accounts and isinstance(accounts, dict):
+                first_account = next(iter(accounts.values()))
+                player_name = first_account.get("player_name")
+
+            if points is not None and player_name:
+                ranked_users.append({
+                    "player_name": player_name,
+                    "points": points
+                })
+
+    ranked_users.sort(key=lambda x: x["points"], reverse=True)
+    return ranked_users

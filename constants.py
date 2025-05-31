@@ -1,11 +1,13 @@
-RIOT_API_TOKEN = 'RGAPI-aa43d186-1cf5-49c5-ba20-61ba2134819f'
+RIOT_API_TOKEN = 'RGAPI-40348c6b-a483-41e0-a2ec-a6dc25a29787'
 RIOT_PLATFORM = 'br1'
 RIOT_REGION = 'americas'
 DISCORD_TOKEN = 'MTM3MDM3OTg3NTE4NTA2NjAwNA.G4aApZ.Hhv9M5_1kR-mKf6JAFX7eSPIlMfgtmhkV6MDdM'
 FIREBASE_DATABASE_URL = "https://galgos-bet-discord-default-rtdb.firebaseio.com/"
 COMMAND_REGISTER_PLAYER = '!register'
+COMMAND_RANKING = '!ranking'
 COMMAND_BALANCE = "!balance"
 COMMAND_START_BET = '!start'
+COMMAND_SELF_BET = '!self'
 COMMAND_COMMANDS = '!gb_commands'
 TIMEOUT_MESSAGE = "Demorou demais!"
 EVENT_MESSAGE = 'message'
