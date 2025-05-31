@@ -127,7 +127,8 @@ async def check_bet_started(message: discord.Message, lazy_message = True):
     return False
 
 async def start_bet(message: discord.Message):
-    if not await is_user_registered(message, f"{message.author.display_name}{Constants.Functions.NOT_REGISTERED}"):
+    if not await is_user_registered(message):
+        await message.channel.send(f"{message.author.display_name}{Constants.Functions.NOT_REGISTERED}")
         return
 
     if await check_bet_started(message):
@@ -178,6 +179,8 @@ async def handle_bet_for_specific_player_found(message, search_response):
 
         await handle_bet_view(message=message, player_name=player_name, puuid=player_puuid)
 
+        await initiate_bet(message)
+
         await asyncio.sleep(60)
 
         while is_bet_started:
@@ -211,17 +214,21 @@ async def handle_bet_view(message, player_name, puuid):
     match_results = retrieve_win_rate(puuid=puuid)
     flex_rate = 0
     solo_rate = 0
+    flex_games = 0
+    solo_games = 0
 
     for entry in match_results:
         if entry[Constants.Generic.QUEUE_TYPE] == Constants.Generic.RANKED_FLEX:
             flex_wins = entry[Constants.Generic.WINS]
             flex_losses = entry[Constants.Generic.LOSSES]
             flex_rate = flex_wins / (flex_wins + flex_losses) * 100
+            flex_games = flex_wins + flex_losses
 
         if entry[Constants.Generic.QUEUE_TYPE] == Constants.Generic.RANKED_SOLO:
             solo_wins = entry[Constants.Generic.WINS]
             solo_losses = entry[Constants.Generic.LOSSES]
             solo_rate = solo_wins / (solo_wins + solo_losses) * 100
+            solo_games = solo_wins + solo_losses
 
     house_edge = 0.95
     prob_win = solo_rate / 100
@@ -232,7 +239,9 @@ async def handle_bet_view(message, player_name, puuid):
 
     description = f"""
     {Constants.BetSystem.BET_VIEW_DESCRIPTION_PLAYER_NAME}{player_name}
+    {Constants.BetSystem.BET_VIEW_DESCRIPTION_SOLO_TOTAL_GAMES}{solo_games}
     {Constants.BetSystem.BET_VIEW_DESCRIPTION_SOLO_WIN_RATE}{solo_rate:.2f}{Constants.Generic.PERCENTAGE}
+    {Constants.BetSystem.BET_VIEW_DESCRIPTION_FLEX_TOTAL_GAMES}{flex_games}
     {Constants.BetSystem.BET_VIEW_DESCRIPTION_FLEX_WIN_RATE}{flex_rate:.2f}{Constants.Generic.PERCENTAGE}
     {Constants.BetSystem.BET_VIEW_DESCRIPTION_ODDS_WIN}{odd_win:.2f}
     {Constants.BetSystem.BET_VIEW_DESCRIPTION_ODDS_LOSE}{odd_lose:.2f}
@@ -244,7 +253,8 @@ async def register_player(message: discord.Message):
     def check_message(received_message):
         return received_message.author == message.author and received_message.channel == message.channel
 
-    if await is_user_registered(message, f"{message.author.display_name}{Constants.Functions.ALREADY_REGISTERED}"):
+    if await is_user_registered(message):
+        await message.channel.send(f"{message.author.display_name}{Constants.Functions.ALREADY_REGISTERED}")
         return
 
     response_name = None
@@ -292,7 +302,8 @@ async def register_player(message: discord.Message):
         await message.channel.send(Constants.Errors.TIMEOUT_MESSAGE)
 
 async def get_points_balance(message: discord.Message):
-    if not await is_user_registered(message, f"{message.author.display_name}{Constants.Functions.NOT_REGISTERED}"):
+    if not await is_user_registered(message):
+        await message.channel.send(f"{message.author.display_name}{Constants.Functions.NOT_REGISTERED}")
         return
 
     try:
@@ -314,6 +325,7 @@ async def display_commands(message: discord.Message):
     {Constants.CommandsView.START}
     {Constants.CommandsView.SELF}
     {Constants.CommandsView.RANKING}
+    {Constants.CommandsView.JOIN}
     """
     await send_embed_message(message, Constants.CommandsView.TITLE, description, Constants.Colors.BLUE)
 
@@ -332,14 +344,14 @@ async def initiate_bet(message: discord.Message):
     global is_bet_period_available
     is_bet_period_available = True
 
-    await message.channel.send(Constants.BetSystem.BET_PERIOD_AVAILABLE)
+    await send_embed_message(message, Constants.BetSystem.BET_PERIOD_AVAILABLE_TITLE, Constants.BetSystem.BET_PERIOD_AVAILABLE_DESCRIPTION, Constants.Colors.GREEN)
 
     try:
         await asyncio.sleep(120)
 
     finally:
         is_bet_period_available = False
-        await message.channel.send(Constants.BetSystem.BET_PERIOD_AVAILABLE)
+        await message.channel.send(Constants.BetSystem.BET_PERIOD_ENDED)
 
 
 client.run(Constants.Discord.DISCORD_TOKEN)

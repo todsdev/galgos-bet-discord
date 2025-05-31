@@ -28,11 +28,16 @@ class Constants:
         QUEUE_TYPE = "queueType"
         RANKED_FLEX = "RANKED_FLEX_SR"
         RANKED_SOLO = "RANKED_SOLO_5x5"
+        API_KEY = "?api_key="
 
     class Riot:
-        RIOT_API_TOKEN = "RGAPI-40348c6b-a483-41e0-a2ec-a6dc25a29787"
+        RIOT_API_TOKEN = "RGAPI-3fa78d83-75f4-4687-bb6e-d837fe34b9f2"
         RIOT_PLATFORM = "br1"
         RIOT_REGION = "americas"
+        URL_ACCOUNT_BY_RIOT_ID = "https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/"
+        URL_SPECTATE_LIVE_GAME = "https://br1.api.riotgames.com/lol/spectator/v5/active-games/by-summoner/"
+        URL_MATCH_RESULT = "https://americas.api.riotgames.com/lol/match/v5/matches/BR1_"
+        URL_WIN_RATE = "https://br1.api.riotgames.com/lol/league/v4/entries/by-puuid/"
 
     class Discord:
         DISCORD_TOKEN = "MTM3MDM3OTg3NTE4NTA2NjAwNA.G4aApZ.Hhv9M5_1kR-mKf6JAFX7eSPIlMfgtmhkV6MDdM"
@@ -52,16 +57,17 @@ class Constants:
         COMMAND_BALANCE = "!balance"
         COMMAND_START_BET = "!start"
         COMMAND_SELF_BET = "!self"
-        COMMAND_COMMANDS = "!gb_commands"
+        COMMAND_COMMANDS = "!commands"
         COMMAND_JOIN = "!join"
 
     class CommandsView:
-        GB_COMMANDS = "**!gb_commands:** Comandos gerais do BOT"
+        GB_COMMANDS = "**!commands:** Comandos gerais do BOT"
         REGISTER = "**!register:** Se registrar no sistema pela primeira vez"
         BALANCE = "**!balance:** Saber quantos pontos você tem para apostar"
         START = "**!start:** Começar o sistema de bet para algum player registrado"
         SELF = "**!self:** Começar o sistema de bet para sua conta"
         RANKING = "**!ranking:** Exibe o ranking de pontuação dos membros da season"
+        JOIN = "**!join:** Permite entrar na instância de bet aberta"
         TITLE = "Comandos"
 
     class Errors:
@@ -76,6 +82,10 @@ class Constants:
         RUNTIME_FIREBASE_EXCEPTION = "Firebase ainda não foi inicializado, chame init_firebase() primeiro"
         VALUE_ERROR_POINTS = "Pontos não encontrados ou formato inválido"
         VALUE_ERROR_USER = "Usuário não encontrado"
+        RIOT_ERROR_ACCOUNT_INFORMATION = "Error (return_account_information): "
+        RIOT_ERROR_SPECTATE_LIVE_GAME = "Error (spectate_live_game): "
+        RIOT_ERROR_MATCH_RESULT = "Error (check_match_result): "
+        RIOT_ERROR_WIN_RATE = "Error (retrieve_win_rate): "
 
     class Prints:
         PRINT_REGISTER_PLAYER = "Start player registering for first time"
@@ -110,12 +120,14 @@ class Constants:
         PLAYER_LOST = " perdeu a partida."
         BET_VIEW_DESCRIPTION_PLAYER_NAME = "**Player:** "
         BET_VIEW_DESCRIPTION_FLEX_WIN_RATE = "**Flex Win Rate:** "
+        BET_VIEW_DESCRIPTION_FLEX_TOTAL_GAMES = "**Flex Total Games:** "
         BET_VIEW_DESCRIPTION_SOLO_WIN_RATE = "**Solo Win Rate:** "
+        BET_VIEW_DESCRIPTION_SOLO_TOTAL_GAMES = "**Solo Total Games:** "
         BET_VIEW_DESCRIPTION_ODDS_WIN = "**Odds Win:** "
         BET_VIEW_DESCRIPTION_ODDS_LOSE = "**Odds Lose:** "
         BET_VIEW_TITLE = "Estatísticas de jogador"
-        BET_PERIOD_AVAILABLE = '''
-        Sistema de bet iniciado
+        BET_PERIOD_AVAILABLE_TITLE = "Sistema de bet iniciado"
+        BET_PERIOD_AVAILABLE_DESCRIPTION = '''
         Digite !join para participar da aposta
         Você tem 2 minutos até o sistema fechar
         '''
