@@ -38,7 +38,7 @@ class Constants:
         COLMA_SPACE = ", "
 
     class Riot:
-        RIOT_API_TOKEN = "RGAPI-3fa78d83-75f4-4687-bb6e-d837fe34b9f2"
+        RIOT_API_TOKEN = "RIOT_API_TOKEN"
         RIOT_PLATFORM = "br1"
         RIOT_REGION = "americas"
         URL_ACCOUNT_BY_RIOT_ID = (
@@ -53,14 +53,10 @@ class Constants:
         URL_WIN_RATE = "https://br1.api.riotgames.com/lol/league/v4/entries/by-puuid/"
 
     class Discord:
-        DISCORD_TOKEN = (
-            "MTM3MDM3OTg3NTE4NTA2NjAwNA.G4aApZ.Hhv9M5_1kR-mKf6JAFX7eSPIlMfgtmhkV6MDdM"
-        )
+        DISCORD_TOKEN = "DISCORD_TOKEN"
 
     class Firebase:
-        FIREBASE_DATABASE_URL = (
-            "https://galgos-bet-discord-default-rtdb.firebaseio.com/"
-        )
+        FIREBASE_DATABASE_URL = "FIREBASE_DATABASE_URL"
         FIREBASE_DATABASE_URL_REQUEST = "databaseURL"
         USER_REF_FIREBASE_DATABASE = "users"
         USER_REF_ACCOUNTS_FIREBASE_DATABASE = "accounts"
@@ -68,7 +64,7 @@ class Constants:
         USER_REF_BANKRUPTCY_FIREBASE_DATABASE = "bankruptcies"
         USER_REF_PLAYER_NAME_FIREBASE_DATABASE = "player_name"
         TOURNAMENT_REF_FIREBASE_DATABASE = "tournament"
-        CERTIFICATE_PATH = "C:\\Users\\Tods\\PycharmProjects\\PythonProject\\config\\galgos-bet-discord-firebase-adminsdk-fbsvc-30cb193ae2.json"
+        CERTIFICATE_PATH = "CERTIFICATE_PATH"
 
     class Commands:
         COMMAND_REGISTER_PLAYER = "!register"

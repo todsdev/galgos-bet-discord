@@ -1,3 +1,4 @@
+import os
 from dataclasses import asdict
 from typing import Optional
 import firebase_admin
@@ -8,13 +9,15 @@ from modal.account_modal import AccountModal
 from modal.tournament_modal import TournamentModal
 from modal.user_modal import UserModal
 
+CERTIFICATE_PATH = os.getenv("CERTIFICATE_PATH")
+FIREBASE_DATABASE_URL = os.getenv("FIREBASE_DATABASE_URL")
 
 def init_firebase():
-    credential = credentials.Certificate(Constants.Firebase.CERTIFICATE_PATH)
+    credential = credentials.Certificate(CERTIFICATE_PATH)
     firebase_admin.initialize_app(
         credential,
         {
-            Constants.Firebase.FIREBASE_DATABASE_URL_REQUEST: Constants.Firebase.FIREBASE_DATABASE_URL,
+            Constants.Firebase.FIREBASE_DATABASE_URL_REQUEST: FIREBASE_DATABASE_URL,
         },
     )
 

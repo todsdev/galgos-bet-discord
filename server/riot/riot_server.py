@@ -1,10 +1,13 @@
+import os
 import requests
 from urllib.parse import quote
 from constants import Constants
 
+RIOT_API_TOKEN = os.getenv("RIOT_API_TOKEN")
+
 
 def return_account_information(name, tag):
-    url = f"{Constants.Riot.URL_ACCOUNT_BY_RIOT_ID}{quote(name)}/{quote(tag)}{Constants.Generic.API_KEY}{Constants.Riot.RIOT_API_TOKEN}"
+    url = f"{Constants.Riot.URL_ACCOUNT_BY_RIOT_ID}{quote(name)}/{quote(tag)}{Constants.Generic.API_KEY}{RIOT_API_TOKEN}"
 
     response = requests.get(url)
 
@@ -18,7 +21,7 @@ def return_account_information(name, tag):
 
 
 def spectate_live_game(puuid):
-    url = f"{Constants.Riot.URL_SPECTATE_LIVE_GAME}{puuid}{Constants.Generic.API_KEY}{Constants.Riot.RIOT_API_TOKEN}"
+    url = f"{Constants.Riot.URL_SPECTATE_LIVE_GAME}{puuid}{Constants.Generic.API_KEY}{RIOT_API_TOKEN}"
 
     response = requests.get(url)
 
@@ -32,7 +35,7 @@ def spectate_live_game(puuid):
 
 
 def check_match_result(game_id):
-    url = f"{Constants.Riot.URL_MATCH_RESULT}{game_id}{Constants.Generic.API_KEY}{Constants.Riot.RIOT_API_TOKEN}"
+    url = f"{Constants.Riot.URL_MATCH_RESULT}{game_id}{Constants.Generic.API_KEY}{RIOT_API_TOKEN}"
 
     response = requests.get(url)
 
@@ -46,7 +49,7 @@ def check_match_result(game_id):
 
 
 def retrieve_win_rate(puuid):
-    url = f"{Constants.Riot.URL_WIN_RATE}{puuid}{Constants.Generic.API_KEY}{Constants.Riot.RIOT_API_TOKEN}"
+    url = f"{Constants.Riot.URL_WIN_RATE}{puuid}{Constants.Generic.API_KEY}{RIOT_API_TOKEN}"
 
     response = requests.get(url)
 

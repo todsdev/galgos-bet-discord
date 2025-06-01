@@ -1,5 +1,11 @@
 import asyncio
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 import discord
+
 
 from constants import Constants
 from exceptions import GalgosBetException
@@ -38,6 +44,7 @@ from server.riot.riot_server import (
     retrieve_win_rate,
 )
 
+DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
 is_bet_started = False
@@ -563,17 +570,21 @@ async def bet_for_registered_user(message):
 
 
 async def handle_bet_for_specific_player_found(message, search_response):
+    print(search_response)
     global statistics_modal, total_won, total_lost, bet_list, bettors_list
     global is_bet_started, is_bet_period_available, bet_modal
-    player_name = search_response[0][Constants.Generic.ACCOUNT][
-        Constants.Generic.PLAYER_NAME
-    ]
-    player_tag = search_response[0][Constants.Generic.ACCOUNT][
-        Constants.Generic.PLAYER_TAG
-    ]
-    player_puuid = search_response[0][Constants.Generic.ACCOUNT][
-        Constants.Generic.PUUID
-    ]
+    if isinstance(search_response, list) and len(search_response) > 0:
+        player_name = search_response[0][Constants.Generic.ACCOUNT][Constants.Generic.PLAYER_NAME]
+        player_tag = search_response[0][Constants.Generic.ACCOUNT][Constants.Generic.PLAYER_TAG]
+        player_puuid = search_response[0][Constants.Generic.ACCOUNT][Constants.Generic.PUUID]
+
+    elif isinstance(search_response, dict):
+        player_name = search_response[Constants.Generic.ACCOUNT][Constants.Generic.PLAYER_NAME]
+        player_tag = search_response[Constants.Generic.ACCOUNT][Constants.Generic.PLAYER_TAG]
+        player_puuid = search_response[Constants.Generic.ACCOUNT][Constants.Generic.PUUID]
+
+    else:
+        raise GalgosBetException(Constants.Errors.UNKNOWN_SEARCH_RESPONSE)
 
     await message.channel.send(
         f"{Constants.BetSystem.STARTING_BET}{player_name}{Constants.Generic.HASHTAG}{player_tag}"
@@ -940,4 +951,4 @@ async def initiate_bet(message: discord.Message):
         await message.channel.send(Constants.BetSystem.BET_PERIOD_ENDED)
 
 
-client.run(Constants.Discord.DISCORD_TOKEN)
+client.run(DISCORD_TOKEN)
