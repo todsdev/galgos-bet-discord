@@ -35,6 +35,7 @@ class Constants:
         REGEX_STRING_AS_INT = r'\d+'
         KEY_W = "w"
         KEY_L = "l"
+        COLMA_SPACE = ", "
 
     class Riot:
         RIOT_API_TOKEN = "RGAPI-3fa78d83-75f4-4687-bb6e-d837fe34b9f2"
@@ -109,6 +110,7 @@ class Constants:
         PRINT_TRYING_JOIN = "Jogador tentando entrar no sistema de bet"
         PRINT_ADD_ACCOUNT = "Jogador tentando adicionar conta nova"
         PRINT_BET_VALUE = "Jogador tentando fazer aposta"
+        PRINT_GLOBAL_RESET = "Instância global resetada"
         APPLICATION_ALIVE = "Application started"
 
     class Ranking:
@@ -147,6 +149,15 @@ class Constants:
         '''
         BET_PERIOD_ENDED = "Sistema de bet para essa partida está fechado"
         REDISTRIBUTED_POINTS = "Os pontos foram redistribuídos"
+        BET_ENDED_TITLE = "Estatísticas finais"
+        BET_ENDED_DESCRIPTION_TOTAL_BETS = "**Número de apostas:** "
+        BET_ENDED_DESCRIPTION_TOTAL_VALUE = "**Valor total:** "
+        BET_ENDED_DESCRIPTION_TOTAL_PLAYERS_WON = "**Players vencedores:** "
+        BET_ENDED_DESCRIPTION_TOTAL_PLAYERS_LOST = "**Players perdedores:** "
+        BET_ENDED_DESCRIPTION_TOTAL_VALUE_WON = "**Valor total ganho:** "
+        BET_ENDED_DESCRIPTION_TOTAL_VALUE_LOST = "**Valor total perdido:** "
+        BET_ENDED_DESCRIPTION_TOTAL_BETS_WON = "**Número de apostas vencedoras:** "
+        BET_ENDED_DESCRIPTION_TOTAL_BETS_LOST = "**Número de apostas perdedoras:** "
 
     class Register:
         REGISTER_NICK = ", digite seu nick da main no lol (sem a tag)"

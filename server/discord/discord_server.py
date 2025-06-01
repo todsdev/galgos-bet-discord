@@ -18,12 +18,14 @@ intents = discord.Intents.all()
 client = discord.Client(intents=intents)
 is_bet_started = False
 is_bet_period_available = False
-bet_modal = BetModal
-statistics_modal = StatisticsModal
-bettors_list: list[UserModal] = []
-bet_list: list[BetModal] = []
+bet_modal = None
+statistics_modal = None
+bettors_list = []
+bet_list = []
 total_won = 0
 total_lost = 0
+players_lost = []
+players_won = []
 
 @client.event
 async def on_ready():
@@ -297,7 +299,8 @@ async def bet_for_registered_user(message):
         await message.channel.send(Constants.Errors.TIMEOUT_MESSAGE)
 
 async def handle_bet_for_specific_player_found(message, search_response):
-    global is_bet_started, bet_list
+    global statistics_modal, total_won, total_lost, bet_list, bettors_list
+    global is_bet_started, is_bet_period_available, bet_modal
     player_name = search_response[0][Constants.Generic.ACCOUNT][Constants.Generic.PLAYER_NAME]
     player_tag = search_response[0][Constants.Generic.ACCOUNT][Constants.Generic.PLAYER_TAG]
     player_puuid = search_response[0][Constants.Generic.ACCOUNT][Constants.Generic.PUUID]
@@ -307,6 +310,7 @@ async def handle_bet_for_specific_player_found(message, search_response):
     spectate_result = spectate_live_game(player_puuid)
     game_id = 0
     checked_game_id = 0
+    game_had_result = False
 
     if spectate_result is not None:
         game_id = spectate_result[Constants.Generic.GAME_ID]
@@ -345,6 +349,7 @@ async def handle_bet_for_specific_player_found(message, search_response):
 
             if participant[Constants.Generic.PUUID] == player_puuid:
                 result = participant[Constants.Generic.WIN]
+                game_had_result = True
 
                 if result:
                     handle_bet_won(bet_win)
@@ -358,21 +363,58 @@ async def handle_bet_for_specific_player_found(message, search_response):
 
         await message.channel.send(Constants.BetSystem.REDISTRIBUTED_POINTS)
 
+        if game_had_result:
+            total_value = 0
+            for bet in bet_list:
+                total_value += bet.bet_value
+
+            description = f'''
+                    {Constants.BetSystem.BET_ENDED_DESCRIPTION_TOTAL_BETS}{len(bet_list)}
+                    {Constants.BetSystem.BET_ENDED_DESCRIPTION_TOTAL_VALUE}{total_value}
+                    {Constants.BetSystem.BET_ENDED_DESCRIPTION_TOTAL_BETS_WON}{len(players_won)}
+                    {Constants.BetSystem.BET_ENDED_DESCRIPTION_TOTAL_BETS_LOST}{len(players_lost)}
+                    {Constants.BetSystem.BET_ENDED_DESCRIPTION_TOTAL_VALUE_WON}{total_won}
+                    {Constants.BetSystem.BET_ENDED_DESCRIPTION_TOTAL_VALUE_LOST}{total_lost}
+                    {Constants.BetSystem.BET_ENDED_DESCRIPTION_TOTAL_PLAYERS_WON}{Constants.Generic.COLMA_SPACE.join(players_won)}
+                    {Constants.BetSystem.BET_ENDED_DESCRIPTION_TOTAL_PLAYERS_LOST}{Constants.Generic.COLMA_SPACE.join(players_lost)}
+                    '''
+
+            await send_embed_message(message, Constants.BetSystem.BET_ENDED_TITLE, description, Constants.Colors.RED)
+
+
+        reset_global()
+
+def reset_global():
+    global is_bet_started, is_bet_period_available, bet_modal, statistics_modal, bet_list, bettors_list, total_won, total_lost, players_lost, players_won
+    is_bet_started = False
+    is_bet_period_available = False
+    bet_modal = None
+    statistics_modal = None
+    bettors_list = []
+    bet_list = []
+    total_won = 0
+    total_lost = 0
+    players_lost = []
+    players_won = []
+    print(Constants.Prints.PRINT_GLOBAL_RESET)
+
 def handle_bet_won(bet_won_list: list[BetModal]):
-    global total_won
+    global total_won, players_won
 
     for bet in bet_won_list:
         value_to_add = bet.possible_win - bet.bet_value
         add_points_to_user(bet.bettor_id, value_to_add)
 
-        total_won += bet.possible_win
+        total_won += bet.possible_win - bet.bet_value
+        players_won.append(bet.bettor)
 
 def handle_bet_lost(bet_lost_list: list[BetModal]):
-    global total_lost
+    global total_lost, players_lost
 
     for bet in bet_lost_list:
         remove_points_to_user(bet.bettor_id, bet.bet_value)
         total_lost += bet.bet_value
+        players_lost.append(bet.bettor)
 
 async def handle_bet_view(message, player_name, puuid):
     global statistics_modal
@@ -403,6 +445,13 @@ async def handle_bet_view(message, player_name, puuid):
     house_edge = 0.95
     prob_win = solo_rate / 100
     prob_lose = 1 - prob_win
+
+    if prob_win == 0:
+        prob_win = 1
+
+    if prob_lose == 0:
+        prob_lose = 1
+
 
     odd_win = round((1 / prob_win) * house_edge, 2)
     odd_lose = round((1 / prob_lose) * house_edge, 2)
@@ -533,7 +582,7 @@ async def initiate_bet(message: discord.Message):
     await send_embed_message(message, Constants.BetSystem.BET_PERIOD_AVAILABLE_TITLE, Constants.BetSystem.BET_PERIOD_AVAILABLE_DESCRIPTION, Constants.Colors.GREEN)
 
     try:
-        await asyncio.sleep(120)
+        await asyncio.sleep(300)
 
     finally:
         is_bet_period_available = False
