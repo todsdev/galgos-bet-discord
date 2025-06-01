@@ -1,7 +1,7 @@
 import os
 import requests
 from urllib.parse import quote
-from constants import Constants
+from commons.constants import Constants
 
 RIOT_API_TOKEN = os.getenv("RIOT_API_TOKEN")
 

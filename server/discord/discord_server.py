@@ -7,9 +7,9 @@ load_dotenv()
 import discord
 
 
-from constants import Constants
-from exceptions import GalgosBetException
-from functions import (
+from commons.constants import Constants
+from commons.exceptions import GalgosBetException
+from commons.functions import (
     extract_number_as_int,
     extract_bettor_side,
     extract_win_or_lose,

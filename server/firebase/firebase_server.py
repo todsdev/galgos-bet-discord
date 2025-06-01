@@ -3,8 +3,8 @@ from dataclasses import asdict
 from typing import Optional
 import firebase_admin
 from firebase_admin import credentials, db
-from constants import Constants
-from exceptions import GalgosBetException
+from commons.constants import Constants
+from commons.exceptions import GalgosBetException
 from modal.account_modal import AccountModal
 from modal.tournament_modal import TournamentModal
 from modal.user_modal import UserModal
