@@ -32,7 +32,7 @@ class Constants:
         RANKED_FLEX = "RANKED_FLEX_SR"
         RANKED_SOLO = "RANKED_SOLO_5x5"
         API_KEY = "?api_key="
-        REGEX_STRING_AS_INT = r'\d+'
+        REGEX_STRING_AS_INT = r"\d+"
         KEY_W = "w"
         KEY_L = "l"
         COLMA_SPACE = ", "
@@ -41,21 +41,33 @@ class Constants:
         RIOT_API_TOKEN = "RGAPI-3fa78d83-75f4-4687-bb6e-d837fe34b9f2"
         RIOT_PLATFORM = "br1"
         RIOT_REGION = "americas"
-        URL_ACCOUNT_BY_RIOT_ID = "https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/"
-        URL_SPECTATE_LIVE_GAME = "https://br1.api.riotgames.com/lol/spectator/v5/active-games/by-summoner/"
-        URL_MATCH_RESULT = "https://americas.api.riotgames.com/lol/match/v5/matches/BR1_"
+        URL_ACCOUNT_BY_RIOT_ID = (
+            "https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/"
+        )
+        URL_SPECTATE_LIVE_GAME = (
+            "https://br1.api.riotgames.com/lol/spectator/v5/active-games/by-summoner/"
+        )
+        URL_MATCH_RESULT = (
+            "https://americas.api.riotgames.com/lol/match/v5/matches/BR1_"
+        )
         URL_WIN_RATE = "https://br1.api.riotgames.com/lol/league/v4/entries/by-puuid/"
 
     class Discord:
-        DISCORD_TOKEN = "MTM3MDM3OTg3NTE4NTA2NjAwNA.G4aApZ.Hhv9M5_1kR-mKf6JAFX7eSPIlMfgtmhkV6MDdM"
+        DISCORD_TOKEN = (
+            "MTM3MDM3OTg3NTE4NTA2NjAwNA.G4aApZ.Hhv9M5_1kR-mKf6JAFX7eSPIlMfgtmhkV6MDdM"
+        )
 
     class Firebase:
-        FIREBASE_DATABASE_URL = "https://galgos-bet-discord-default-rtdb.firebaseio.com/"
-        FIREBASE_DATABASE_URL_REQUEST = 'databaseURL'
+        FIREBASE_DATABASE_URL = (
+            "https://galgos-bet-discord-default-rtdb.firebaseio.com/"
+        )
+        FIREBASE_DATABASE_URL_REQUEST = "databaseURL"
         USER_REF_FIREBASE_DATABASE = "users"
         USER_REF_ACCOUNTS_FIREBASE_DATABASE = "accounts"
         USER_REF_POINTS_FIREBASE_DATABASE = "points"
+        USER_REF_BANKRUPTCY_FIREBASE_DATABASE = "bankruptcies"
         USER_REF_PLAYER_NAME_FIREBASE_DATABASE = "player_name"
+        TOURNAMENT_REF_FIREBASE_DATABASE = "tournament"
         CERTIFICATE_PATH = "C:\\Users\\Tods\\PycharmProjects\\PythonProject\\config\\galgos-bet-discord-firebase-adminsdk-fbsvc-30cb193ae2.json"
 
     class Commands:
@@ -68,6 +80,8 @@ class Constants:
         COMMAND_JOIN = "!join"
         COMMAND_ADD = "!add"
         COMMAND_BET_VALUE = "!bet"
+        COMMAND_BET_VALUE_ALL_IN = "!allin"
+        COMMAND_LOAD = "!helpmedaddy"
 
     class CommandsView:
         GB_COMMANDS = "**!commands:** Comandos gerais do BOT"
@@ -79,6 +93,8 @@ class Constants:
         JOIN = "**!join:** Permite entrar na instância de bet aberta"
         ADD = "**!add:** Permite adicionar outra conta ao seu pefil"
         BET_VALUE = "**!bet:** Caso tenha uma aposta ativa e pontos suficiente, permite apostar um valor para vitória ou derrota (exemplo: !bet 500w ou !bet 750l)"
+        BET_VALUE_ALL_IN = "**!allin:** Caso tenha uma aposta ativa e pontos suficiente, permite apostar todo seus pontos para vitória ou derrota (exemplo: !allinw ou !allwinl)"
+        LOAD = "**!helpmedaddy:** Caso tenha falido devido as suas más escolhas, talvez seu dev seja benevolente com você"
         TITLE = "Comandos"
 
     class Errors:
@@ -90,10 +106,17 @@ class Constants:
         ADD_ACCOUNT_ERROR = "Ocorreu um erro ao adicionar nova conta"
         JOIN_EXCEPTION = "Ocorreu um erro ao tentar entrar no sistema de bet: "
         UNKNOWN_SEARCH_RESPONSE = "Search response não foi recuperado no formato ideal"
+        MULTIPLE_SELF_BET_ERROR = (
+            "Ocorreu um erro ao tentar identificar qual conta está sendo jogada: "
+        )
         FIREBASE_EXCEPTION = "Erro ao recuperar dados do Firebase: "
-        RUNTIME_FIREBASE_EXCEPTION = "Firebase ainda não foi inicializado, chame init_firebase() primeiro"
+        RUNTIME_FIREBASE_EXCEPTION = (
+            "Firebase ainda não foi inicializado, chame init_firebase() primeiro"
+        )
         VALUE_ERROR_POINTS = "Pontos não encontrados ou formato inválido"
+        VALUE_ERROR_TOURNAMENT = "Torneio não encontrado"
         VALUE_ERROR_USER = "Usuário não encontrado"
+        ERROR_ADD_BET = "Um erro ao processar bet"
         RIOT_ERROR_ACCOUNT_INFORMATION = "Error (return_account_information): "
         RIOT_ERROR_SPECTATE_LIVE_GAME = "Error (spectate_live_game): "
         RIOT_ERROR_MATCH_RESULT = "Error (check_match_result): "
@@ -110,8 +133,11 @@ class Constants:
         PRINT_TRYING_JOIN = "Jogador tentando entrar no sistema de bet"
         PRINT_ADD_ACCOUNT = "Jogador tentando adicionar conta nova"
         PRINT_BET_VALUE = "Jogador tentando fazer aposta"
+        PRINT_BET_VALUE_ALL_IN = "Jogador tentando fazer aposta all in"
         PRINT_GLOBAL_RESET = "Instância global resetada"
-        APPLICATION_ALIVE = "Application started"
+        PRINT_ACCOUNT_FOUND = "Encontrado jogo ativo para jogador solicitante"
+        PRINT_LOAD = "Jogador precisa de pontos"
+        PRINT_APPLICATION_ALIVE = "Application started"
 
     class Ranking:
         RANKING = "Ranking"
@@ -143,10 +169,10 @@ class Constants:
         BET_VIEW_DESCRIPTION_ODDS_LOSE = "**Odds Lose:** "
         BET_VIEW_TITLE = "Estatísticas de jogador"
         BET_PERIOD_AVAILABLE_TITLE = "Sistema de bet iniciado"
-        BET_PERIOD_AVAILABLE_DESCRIPTION = '''
+        BET_PERIOD_AVAILABLE_DESCRIPTION = """
         Digite !join para participar da aposta
         Você tem 2 minutos até o sistema fechar
-        '''
+        """
         BET_PERIOD_ENDED = "Sistema de bet para essa partida está fechado"
         REDISTRIBUTED_POINTS = "Os pontos foram redistribuídos"
         BET_ENDED_TITLE = "Estatísticas finais"
@@ -158,6 +184,7 @@ class Constants:
         BET_ENDED_DESCRIPTION_TOTAL_VALUE_LOST = "**Valor total perdido:** "
         BET_ENDED_DESCRIPTION_TOTAL_BETS_WON = "**Número de apostas vencedoras:** "
         BET_ENDED_DESCRIPTION_TOTAL_BETS_LOST = "**Número de apostas perdedoras:** "
+        LIVE_MATCH_NOT_FOUND = "Não foi encontrada nenhuma partida ao vivo para suas contas, tente novamente"
 
     class Register:
         REGISTER_NICK = ", digite seu nick da main no lol (sem a tag)"
@@ -169,6 +196,11 @@ class Constants:
         BET_NOT_FOUND = "Não existe bet ativa no momento"
         YOUR_BALANCE_START = ", você atualmente possui "
         YOUR_BALANCE_END = " pontos para apostar, use com sabedoria"
+        NOT_ENOUGH_POINTS = ", você não tem pontos o suficiente"
+
+    class Load:
+        HAVE_POINTS = "Não precisa se humilhar, você tem pontos o suficiente"
+        SUPPORTIVE = ", seu papai dev é benevolente e vai te dar um trocadinho para você se divertir"
 
     class Balance:
         VIEW_TITLE = "Seus pontos"
@@ -181,12 +213,15 @@ class Constants:
 
     class BetValue:
         NO_BET_AVAILABLE = "No momento não existe uma aposta ativa"
-        INCORRECT_BET_VALUE = "Valor incorreto para aposta, reveja informações e tente novamente"
+        INCORRECT_BET_VALUE = (
+            "Valor incorreto para aposta, reveja informações e tente novamente"
+        )
         NO_SIDE = "Não foi enviado 'w' ou 'l' no final do comando de bet para informar se é uma bet de vitória ou derrota (exemplo: !bet 500w)"
         WHICH_SIDE = "Você acha que vai ser vitória ou derrota? Digite 'win' ou 'lose'"
         BET_CANCELED = "Bet cancelada por errar muitas vezes um fluxo tão simples"
         BET_SUCCESS = ", bet enviada com sucesso"
         RECEIPT_TITLE = "Recibo / "
+        DESCRIPTION_ALL_IN = "**All in**: Foi apostado todos os pontos, e caso vitorioso, o valor ganho é dobrado"
         DESCRIPTION_VALUE = "**Valor**: "
         DESCRIPTION_IS_WIN = "**Vitória**: "
         DESCRIPTION_ODD_WIN = "**Odd Vitória**: "

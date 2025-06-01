@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from modal.account_modal import AccountModal
 
+
 @dataclass()
 class UserModal:
     user_id: int
@@ -10,3 +11,4 @@ class UserModal:
     registered: bool
     accounts: list[AccountModal]
     points: float
+    bankruptcies: int = 0

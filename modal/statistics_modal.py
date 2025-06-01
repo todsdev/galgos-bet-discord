@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+
 @dataclass()
 class StatisticsModal:
     flex_win_rate: float

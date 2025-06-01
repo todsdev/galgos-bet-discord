@@ -10,7 +10,7 @@ class BetModal(discord.ui.Modal, title="Fazer aposta"):
         self.bet = ui.TextInput(
             label="QUANTO VOCÊ QUER APOSTAR?",
             placeholder="Digite um valor",
-            max_length=10
+            max_length=10,
         )
         self.add_item(self.bet)
 
