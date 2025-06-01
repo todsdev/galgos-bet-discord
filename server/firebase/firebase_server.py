@@ -155,6 +155,27 @@ def add_points_to_user(user_id, points):
     except Exception as exception:
         raise GalgosBetException(f"{Constants.Errors.FIREBASE_EXCEPTION}{str(exception)}")
 
+def remove_points_to_user(user_id, points):
+    try:
+        database_ref = get_firebase_database()
+        user_ref = database_ref.child(Constants.Firebase.USER_REF_FIREBASE_DATABASE).child(str(user_id))
+        user_data = user_ref.get()
+
+        if not user_data and not isinstance(user_data, dict):
+            raise ValueError(Constants.Errors.VALUE_ERROR_USER)
+
+        current_points = float(user_data.get(Constants.Firebase.USER_REF_POINTS_FIREBASE_DATABASE, 0.0))
+        new_points = current_points - points
+
+        if new_points < 0:
+            new_points = 0
+
+        user_ref.update({Constants.Firebase.USER_REF_POINTS_FIREBASE_DATABASE: new_points})
+
+    except Exception as exception:
+        raise GalgosBetException(f"{Constants.Errors.FIREBASE_EXCEPTION}{str(exception)}")
+
+
 def get_points_ranking():
     try:
         database_ref = get_firebase_database()

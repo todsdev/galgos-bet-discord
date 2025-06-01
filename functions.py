@@ -1,6 +1,8 @@
 import re
 
 from constants import Constants
+from modal.bet_modal import BetModal
+
 
 def extract_number_as_int(message: str) -> int:
     number_string = ''.join(re.findall(Constants.Generic.REGEX_STRING_AS_INT, message))
@@ -20,3 +22,8 @@ def extract_win_or_lose(message: str) -> bool | None:
             return True
         return False
     return None
+
+def extract_winners_and_losers(bet_list: list[BetModal]):
+    bet_win = [bet for bet in bet_list if bet.win]
+    bet_lose = [bet for bet in bet_list if not bet.win]
+    return bet_win, bet_lose

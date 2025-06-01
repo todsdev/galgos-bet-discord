@@ -3,14 +3,14 @@ import discord
 
 from constants import Constants
 from exceptions import GalgosBetException
-from functions import extract_number_as_int, extract_bettor_side, extract_win_or_lose
+from functions import extract_number_as_int, extract_bettor_side, extract_win_or_lose, extract_winners_and_losers
 from modal.account_modal import AccountModal
 from modal.bet_modal import BetModal
 from modal.statistics_modal import StatisticsModal
 from modal.user_modal import UserModal
 from server.firebase.firebase_server import init_firebase, save_user_firebase, get_user_points_firebase, \
     check_user_registered_firebase, get_account_by_name, get_account_by_id, get_points_ranking, get_user_by_id, \
-    add_user_account
+    add_user_account, add_points_to_user, remove_points_to_user
 from server.riot.riot_server import return_account_information, spectate_live_game, check_match_result, \
     retrieve_win_rate
 
@@ -22,6 +22,8 @@ bet_modal = BetModal
 statistics_modal = StatisticsModal
 bettors_list: list[UserModal] = []
 bet_list: list[BetModal] = []
+total_won = 0
+total_lost = 0
 
 @client.event
 async def on_ready():
@@ -118,7 +120,8 @@ async def add_bet_value(message: discord.Message, content: str):
 
             bet_modal = BetModal(
                 bet_value=round(bet_value, 0),
-                bettor=message.author.nick,
+                bettor=message.author.display_name,
+                bettor_id=message.author.id,
                 win=is_win,
                 possible_win=possible_win,
             )
@@ -294,7 +297,7 @@ async def bet_for_registered_user(message):
         await message.channel.send(Constants.Errors.TIMEOUT_MESSAGE)
 
 async def handle_bet_for_specific_player_found(message, search_response):
-    global is_bet_started
+    global is_bet_started, bet_list
     player_name = search_response[0][Constants.Generic.ACCOUNT][Constants.Generic.PLAYER_NAME]
     player_tag = search_response[0][Constants.Generic.ACCOUNT][Constants.Generic.PLAYER_TAG]
     player_puuid = search_response[0][Constants.Generic.ACCOUNT][Constants.Generic.PUUID]
@@ -336,13 +339,40 @@ async def handle_bet_for_specific_player_found(message, search_response):
 
     if game_id != 0:
         match_result = check_match_result(game_id)
+        bet_win, bet_lose = extract_winners_and_losers(bet_list)
+
         for participant in match_result[Constants.Generic.INFORMATION][Constants.Generic.PARTICIPANTS]:
+
             if participant[Constants.Generic.PUUID] == player_puuid:
                 result = participant[Constants.Generic.WIN]
+
                 if result:
+                    handle_bet_won(bet_win)
+                    handle_bet_lost(bet_lose)
                     await message.channel.send(f"{Constants.BetSystem.PLAYER}{player_name}{Constants.Generic.HASHTAG}{player_tag}{Constants.BetSystem.PLAYER_WON}")
+
                 else:
+                    handle_bet_won(bet_lose)
+                    handle_bet_lost(bet_win)
                     await message.channel.send(f"{Constants.BetSystem.PLAYER}{player_name}{Constants.Generic.HASHTAG}{player_tag}{Constants.BetSystem.PLAYER_LOST}")
+
+        await message.channel.send(Constants.BetSystem.REDISTRIBUTED_POINTS)
+
+def handle_bet_won(bet_won_list: list[BetModal]):
+    global total_won
+
+    for bet in bet_won_list:
+        value_to_add = bet.possible_win - bet.bet_value
+        add_points_to_user(bet.bettor_id, value_to_add)
+
+        total_won += bet.possible_win
+
+def handle_bet_lost(bet_lost_list: list[BetModal]):
+    global total_lost
+
+    for bet in bet_lost_list:
+        remove_points_to_user(bet.bettor_id, bet.bet_value)
+        total_lost += bet.bet_value
 
 async def handle_bet_view(message, player_name, puuid):
     global statistics_modal
@@ -382,6 +412,7 @@ async def handle_bet_view(message, player_name, puuid):
     {Constants.BetSystem.BET_VIEW_DESCRIPTION_SOLO_TOTAL_GAMES}{solo_games}
     {Constants.BetSystem.BET_VIEW_DESCRIPTION_SOLO_WIN_RATE}{solo_rate:.2f}{Constants.Generic.PERCENTAGE}
     {Constants.BetSystem.BET_VIEW_DESCRIPTION_FLEX_TOTAL_GAMES}{flex_games}
+    {Constants.BetSystem.BET_VIEW_DESCRIPTION_SEASON_TOTAL_GAMES}{solo_games + flex_games}
     {Constants.BetSystem.BET_VIEW_DESCRIPTION_FLEX_WIN_RATE}{flex_rate:.2f}{Constants.Generic.PERCENTAGE}
     {Constants.BetSystem.BET_VIEW_DESCRIPTION_ODDS_WIN}{odd_win:.2f}
     {Constants.BetSystem.BET_VIEW_DESCRIPTION_ODDS_LOSE}{odd_lose:.2f}

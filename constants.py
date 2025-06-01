@@ -116,7 +116,7 @@ class Constants:
 
     class SelfBet:
         NOT_FOUND = "Não foi encontrado ninguém com esse nome no banco de dados"
-        DUPLICATED = "Seu usuário está duplicado no banco de dados, por enquanto não suportamos essa função"
+        DUPLICATED = "Você possui mais de uma conta salva, o desenvolvedor preguiçoso ainda não implementou essa parte"
 
     class Bet:
         WHO_START = ", para quem deseja começar bet (nome da conta)?"
@@ -136,6 +136,7 @@ class Constants:
         BET_VIEW_DESCRIPTION_FLEX_TOTAL_GAMES = "**Flex Total Games:** "
         BET_VIEW_DESCRIPTION_SOLO_WIN_RATE = "**Solo Win Rate:** "
         BET_VIEW_DESCRIPTION_SOLO_TOTAL_GAMES = "**Solo Total Games:** "
+        BET_VIEW_DESCRIPTION_SEASON_TOTAL_GAMES = "**Total Games:** "
         BET_VIEW_DESCRIPTION_ODDS_WIN = "**Odds Win:** "
         BET_VIEW_DESCRIPTION_ODDS_LOSE = "**Odds Lose:** "
         BET_VIEW_TITLE = "Estatísticas de jogador"
@@ -145,6 +146,7 @@ class Constants:
         Você tem 2 minutos até o sistema fechar
         '''
         BET_PERIOD_ENDED = "Sistema de bet para essa partida está fechado"
+        REDISTRIBUTED_POINTS = "Os pontos foram redistribuídos"
 
     class Register:
         REGISTER_NICK = ", digite seu nick da main no lol (sem a tag)"
