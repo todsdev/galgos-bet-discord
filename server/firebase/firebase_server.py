@@ -166,16 +166,11 @@ def get_points_ranking():
         if all_users and isinstance(all_users, dict):
             for user_id, user_data in all_users.items():
                 points = user_data.get(Constants.Generic.POINTS)
-                accounts = user_data.get(Constants.Generic.ACCOUNTS, {})
+                name = user_data.get(Constants.Generic.NAME)
 
-                player_name = None
-                if accounts and isinstance(accounts, dict):
-                    first_account = next(iter(accounts.values()))
-                    player_name = first_account.get(Constants.Generic.PLAYER_NAME)
-
-                if points is not None and player_name:
+                if points is not None and name is not None:
                     ranked_users.append({
-                        Constants.Generic.PLAYER_NAME: player_name,
+                        Constants.Generic.PLAYER_NAME: name,
                         Constants.Generic.POINTS: points
                     })
 

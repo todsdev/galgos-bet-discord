@@ -3,8 +3,10 @@ import discord
 
 from constants import Constants
 from exceptions import GalgosBetException
+from functions import extract_number_as_int, extract_bettor_side, extract_win_or_lose
 from modal.account_modal import AccountModal
 from modal.bet_modal import BetModal
+from modal.statistics_modal import StatisticsModal
 from modal.user_modal import UserModal
 from server.firebase.firebase_server import init_firebase, save_user_firebase, get_user_points_firebase, \
     check_user_registered_firebase, get_account_by_name, get_account_by_id, get_points_ranking, get_user_by_id, \
@@ -17,7 +19,9 @@ client = discord.Client(intents=intents)
 is_bet_started = False
 is_bet_period_available = False
 bet_modal = BetModal
+statistics_modal = StatisticsModal
 bettors_list: list[UserModal] = []
+bet_list: list[BetModal] = []
 
 @client.event
 async def on_ready():
@@ -61,6 +65,85 @@ async def on_message(message: discord.Message):
         print(Constants.Prints.PRINT_ADD_ACCOUNT)
         await add_account(message)
 
+    elif message.content.startswith(Constants.Commands.COMMAND_BET_VALUE):
+        print(Constants.Prints.PRINT_BET_VALUE)
+        await add_bet_value(message, message.content)
+
+async def add_bet_value(message: discord.Message, content: str):
+    if not await is_user_registered(message):
+        await message.channel.send(f"{message.author.display_name}{Constants.Functions.NOT_REGISTERED}")
+        return
+
+    global is_bet_period_available, bettors_list, statistics_modal, bet_list, bet_modal
+
+    def check_message(received_message):
+        return received_message.author == message.author and received_message.channel == message.channel
+
+    if is_bet_period_available:
+        user_points = get_user_points_firebase(message.author.id)
+        bet_value = extract_number_as_int(content)
+
+        if 0 < bet_value < user_points:
+            side = extract_bettor_side(content)
+            is_win: bool
+
+            if side is None:
+                await message.channel.send(Constants.BetValue.NO_SIDE)
+                await message.channel.send(Constants.BetValue.WHICH_SIDE)
+
+                response = await client.wait_for(Constants.Generic.EVENT_MESSAGE, timeout=15, check=check_message)
+
+                win_or_lose = extract_win_or_lose(response)
+
+                if win_or_lose is None:
+                    await message.channel.send(Constants.BetValue.BET_CANCELED)
+                    return
+
+                if win_or_lose:
+                    is_win = True
+                    possible_win = round(bet_value * statistics_modal.odd_win)
+
+                else:
+                    is_win = False
+                    possible_win = round(bet_value * statistics_modal.odd_lose)
+
+            else:
+                if side:
+                    is_win = True
+                    possible_win = round(bet_value * statistics_modal.odd_win)
+
+                else:
+                    is_win = False
+                    possible_win = round(bet_value * statistics_modal.odd_lose)
+
+            bet_modal = BetModal(
+                bet_value=round(bet_value, 0),
+                bettor=message.author.nick,
+                win=is_win,
+                possible_win=possible_win,
+            )
+
+            bet_list.append(bet_modal)
+
+            print(bet_list)
+            await message.channel.send(f"{message.author.display_name}{Constants.BetValue.BET_SUCCESS}")
+
+            description = f'''
+            {Constants.BetValue.DESCRIPTION_VALUE}{bet_value}
+            {Constants.BetValue.DESCRIPTION_IS_WIN}{is_win}
+            {Constants.BetValue.DESCRIPTION_ODD_WIN}{statistics_modal.odd_win}
+            {Constants.BetValue.DESCRIPTION_ODD_LOSE}{statistics_modal.odd_lose}
+            {Constants.BetValue.DESCRIPTION_WIN_POSSIBILITY}{possible_win}
+            '''
+
+            await send_embed_message(message, f"{Constants.BetValue.RECEIPT_TITLE}{message.author.display_name}", description, Constants.Colors.PURPLE)
+
+        else:
+            await message.channel.send(Constants.BetValue.INCORRECT_BET_VALUE)
+
+    else:
+        await message.channel.send(Constants.BetValue.NO_BET_AVAILABLE)
+
 async def add_account(message: discord.Message):
     if not await is_user_registered(message):
         await message.channel.send(f"{message.author.display_name}{Constants.Functions.NOT_REGISTERED}")
@@ -98,6 +181,8 @@ async def add_account(message: discord.Message):
 
         add_user_account(message.author.id, secondary_account)
 
+        await message.channel.send(Constants.AddAccount.REGISTERED)
+
     except GalgosBetException:
         raise GalgosBetException(Constants.Errors.ADD_ACCOUNT_ERROR)
 
@@ -108,6 +193,10 @@ async def try_joining(message: discord.Message):
         try:
             user = get_user_by_id(message.author.id)
             bettors_list.append(user)
+
+            points = get_user_points_firebase(message.author.id)
+
+            await message.channel.send(f"{message.author.display_name}{Constants.Join.YOUR_BALANCE_START}{str(round(points))}{Constants.Join.YOUR_BALANCE_END}")
 
         except Exception as exception:
             raise GalgosBetException(f"{Constants.Errors.JOIN_EXCEPTION}{str(exception)}")
@@ -126,7 +215,7 @@ async def get_ranking(message: discord.Message):
         for i, player in enumerate(ranking[:20], start=1):
             name = player.get(Constants.Generic.PLAYER_NAME, Constants.Generic.UNKNOWN)
             points = player.get(Constants.Generic.POINTS, 0)
-            description += f"**{i}. {name}** — {points} pontos\n"
+            description += f"**{i}. {name}** — {round(points)} {Constants.Generic.POINTS_PTBR}\n"
         await send_embed_message(message, Constants.Ranking.RANKING, description, Constants.Colors.PURPLE)
     except Exception as exception:
         raise GalgosBetException(f"{Constants.Errors.RANKING_EXCEPTION}{str(exception)}")
@@ -256,11 +345,17 @@ async def handle_bet_for_specific_player_found(message, search_response):
                     await message.channel.send(f"{Constants.BetSystem.PLAYER}{player_name}{Constants.Generic.HASHTAG}{player_tag}{Constants.BetSystem.PLAYER_LOST}")
 
 async def handle_bet_view(message, player_name, puuid):
+    global statistics_modal
+
     match_results = retrieve_win_rate(puuid=puuid)
     flex_rate = 0
     solo_rate = 0
     flex_games = 0
     solo_games = 0
+    flex_wins = 0
+    flex_losses = 0
+    solo_wins = 0
+    solo_losses = 0
 
     for entry in match_results:
         if entry[Constants.Generic.QUEUE_TYPE] == Constants.Generic.RANKED_FLEX:
@@ -293,6 +388,19 @@ async def handle_bet_view(message, player_name, puuid):
     """
 
     await send_embed_message(message, Constants.BetSystem.BET_VIEW_TITLE, description, Constants.Colors.BLUE)
+
+    statistics_modal = StatisticsModal(
+        flex_win_rate=flex_rate,
+        flex_wins=flex_wins,
+        flex_losses=flex_losses,
+        flex_games=flex_games,
+        solo_win_rate=solo_rate,
+        solo_wins=solo_wins,
+        solo_losses=solo_losses,
+        solo_games=solo_games,
+        odd_win=odd_win,
+        odd_lose=odd_lose,
+    )
 
 async def register_player(message: discord.Message):
     def check_message(received_message):
@@ -332,7 +440,7 @@ async def register_player(message: discord.Message):
 
         user = UserModal(
             user_id=message.author.id,
-            name=message.author.name,
+            name=message.author.display_name,
             nick=message.author.nick,
             accounts=[main_account],
             registered=True,
@@ -372,6 +480,7 @@ async def display_commands(message: discord.Message):
     {Constants.CommandsView.RANKING}
     {Constants.CommandsView.JOIN}
     {Constants.CommandsView.ADD}
+    {Constants.CommandsView.BET_VALUE}
     """
     await send_embed_message(message, Constants.CommandsView.TITLE, description, Constants.Colors.BLUE)
 

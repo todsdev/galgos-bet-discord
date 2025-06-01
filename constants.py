@@ -9,6 +9,7 @@ class Constants:
         PLAYER_TAG = "player_tag"
         PUUID = "puuid"
         POINTS = "points"
+        POINTS_PTBR = "pontos"
         ACCOUNT = "account"
         ACCOUNTS = "accounts"
         GAME_ID = "gameId"
@@ -16,6 +17,7 @@ class Constants:
         USER_ID = "user_id"
         ACCOUNT_ID = "account_id"
         USER_NAME = "user_name"
+        NAME = "name"
         USER_NICK = "user_nick"
         MAIN = "main"
         HASHTAG = "#"
@@ -24,11 +26,15 @@ class Constants:
         PARTICIPANTS = "participants"
         WIN = "win"
         WINS = "wins"
+        LOSE = "lose"
         LOSSES = "losses"
         QUEUE_TYPE = "queueType"
         RANKED_FLEX = "RANKED_FLEX_SR"
         RANKED_SOLO = "RANKED_SOLO_5x5"
         API_KEY = "?api_key="
+        REGEX_STRING_AS_INT = r'\d+'
+        KEY_W = "w"
+        KEY_L = "l"
 
     class Riot:
         RIOT_API_TOKEN = "RGAPI-3fa78d83-75f4-4687-bb6e-d837fe34b9f2"
@@ -60,6 +66,7 @@ class Constants:
         COMMAND_COMMANDS = "!commands"
         COMMAND_JOIN = "!join"
         COMMAND_ADD = "!add"
+        COMMAND_BET_VALUE = "!bet"
 
     class CommandsView:
         GB_COMMANDS = "**!commands:** Comandos gerais do BOT"
@@ -70,6 +77,7 @@ class Constants:
         RANKING = "**!ranking:** Exibe o ranking de pontuação dos membros da season"
         JOIN = "**!join:** Permite entrar na instância de bet aberta"
         ADD = "**!add:** Permite adicionar outra conta ao seu pefil"
+        BET_VALUE = "**!bet:** Caso tenha uma aposta ativa e pontos suficiente, permite apostar um valor para vitória ou derrota (exemplo: !bet 500w ou !bet 750l)"
         TITLE = "Comandos"
 
     class Errors:
@@ -100,6 +108,7 @@ class Constants:
         PRINT_MATCH_LIVE = "Partida em andamento"
         PRINT_TRYING_JOIN = "Jogador tentando entrar no sistema de bet"
         PRINT_ADD_ACCOUNT = "Jogador tentando adicionar conta nova"
+        PRINT_BET_VALUE = "Jogador tentando fazer aposta"
         APPLICATION_ALIVE = "Application started"
 
     class Ranking:
@@ -145,6 +154,8 @@ class Constants:
 
     class Join:
         BET_NOT_FOUND = "Não existe bet ativa no momento"
+        YOUR_BALANCE_START = ", você atualmente possui "
+        YOUR_BALANCE_END = " pontos para apostar, use com sabedoria"
 
     class Balance:
         VIEW_TITLE = "Seus pontos"
@@ -153,6 +164,21 @@ class Constants:
     class AddAccount:
         REGISTER_NICK = ", digite seu nick da sua conta secundária no lol (sem a tag)"
         REGISTER_TAG = "Agora somente a tag (sem o #)"
+        REGISTERED = "Conta secundária registrada com sucesso"
+
+    class BetValue:
+        NO_BET_AVAILABLE = "No momento não existe uma aposta ativa"
+        INCORRECT_BET_VALUE = "Valor incorreto para aposta, reveja informações e tente novamente"
+        NO_SIDE = "Não foi enviado 'w' ou 'l' no final do comando de bet para informar se é uma bet de vitória ou derrota (exemplo: !bet 500w)"
+        WHICH_SIDE = "Você acha que vai ser vitória ou derrota? Digite 'win' ou 'lose'"
+        BET_CANCELED = "Bet cancelada por errar muitas vezes um fluxo tão simples"
+        BET_SUCCESS = ", bet enviada com sucesso"
+        RECEIPT_TITLE = "Recibo / "
+        DESCRIPTION_VALUE = "**Valor**: "
+        DESCRIPTION_IS_WIN = "**Vitória**: "
+        DESCRIPTION_ODD_WIN = "**Odd Vitória**: "
+        DESCRIPTION_ODD_LOSE = "**Odd Derrota**: "
+        DESCRIPTION_WIN_POSSIBILITY = "**Perspectiva de Vitória**: "
 
     class Functions:
         LAZY_DEV = "Já existe uma bet ativa no momento, espere o final ou reclame com o dev que não escalou a aplicação direito por preguiça."
