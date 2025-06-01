@@ -199,7 +199,7 @@ class Constants:
         NOT_ENOUGH_POINTS = ", você não tem pontos o suficiente"
 
     class Load:
-        HAVE_POINTS = "Não precisa se humilhar, você tem pontos o suficiente"
+        HAVE_POINTS = ", não precisa se humilhar, você tem pontos o suficiente"
         SUPPORTIVE = ", seu papai dev é benevolente e vai te dar um trocadinho para você se divertir"
 
     class Balance:
