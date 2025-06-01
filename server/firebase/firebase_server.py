@@ -12,6 +12,7 @@ from modal.user_modal import UserModal
 CERTIFICATE_PATH = os.getenv("CERTIFICATE_PATH")
 FIREBASE_DATABASE_URL = os.getenv("FIREBASE_DATABASE_URL")
 
+
 def init_firebase():
     credential = credentials.Certificate(CERTIFICATE_PATH)
     firebase_admin.initialize_app(

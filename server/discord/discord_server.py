@@ -574,14 +574,26 @@ async def handle_bet_for_specific_player_found(message, search_response):
     global statistics_modal, total_won, total_lost, bet_list, bettors_list
     global is_bet_started, is_bet_period_available, bet_modal
     if isinstance(search_response, list) and len(search_response) > 0:
-        player_name = search_response[0][Constants.Generic.ACCOUNT][Constants.Generic.PLAYER_NAME]
-        player_tag = search_response[0][Constants.Generic.ACCOUNT][Constants.Generic.PLAYER_TAG]
-        player_puuid = search_response[0][Constants.Generic.ACCOUNT][Constants.Generic.PUUID]
+        player_name = search_response[0][Constants.Generic.ACCOUNT][
+            Constants.Generic.PLAYER_NAME
+        ]
+        player_tag = search_response[0][Constants.Generic.ACCOUNT][
+            Constants.Generic.PLAYER_TAG
+        ]
+        player_puuid = search_response[0][Constants.Generic.ACCOUNT][
+            Constants.Generic.PUUID
+        ]
 
     elif isinstance(search_response, dict):
-        player_name = search_response[Constants.Generic.ACCOUNT][Constants.Generic.PLAYER_NAME]
-        player_tag = search_response[Constants.Generic.ACCOUNT][Constants.Generic.PLAYER_TAG]
-        player_puuid = search_response[Constants.Generic.ACCOUNT][Constants.Generic.PUUID]
+        player_name = search_response[Constants.Generic.ACCOUNT][
+            Constants.Generic.PLAYER_NAME
+        ]
+        player_tag = search_response[Constants.Generic.ACCOUNT][
+            Constants.Generic.PLAYER_TAG
+        ]
+        player_puuid = search_response[Constants.Generic.ACCOUNT][
+            Constants.Generic.PUUID
+        ]
 
     else:
         raise GalgosBetException(Constants.Errors.UNKNOWN_SEARCH_RESPONSE)
