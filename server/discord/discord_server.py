@@ -524,7 +524,7 @@ async def register_player(message: discord.Message):
             nick=message.author.nick,
             accounts=[main_account],
             registered=True,
-            points=1000.0
+            points=100.0
         )
 
         save_user_firebase(user)
