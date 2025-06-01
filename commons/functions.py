@@ -1,6 +1,6 @@
 import re
 
-from constants import Constants
+from commons.constants import Constants
 from modal.bet_modal import BetModal
 
 

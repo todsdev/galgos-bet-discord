@@ -1,4 +1,4 @@
-from constants import Constants
+from commons.constants import Constants
 
 
 class GalgosBetException(Exception):
