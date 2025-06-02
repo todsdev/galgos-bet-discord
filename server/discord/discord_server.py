@@ -486,8 +486,10 @@ async def handle_bet_for_multiple_player_accounts_found(message, accounts):
             if spectate_result is not None:
                 await handle_bet_for_specific_player_found(message, account)
                 print(Constants.Prints.PRINT_ACCOUNT_FOUND)
+            else:
+                await message.channel.send(Constants.BetSystem.LIVE_MATCH_NOT_FOUND)
 
-        await message.channel.send(Constants.BetSystem.LIVE_MATCH_NOT_FOUND)
+
 
     except Exception as exception:
         raise GalgosBetException(
